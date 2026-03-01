@@ -58,6 +58,8 @@ type MarketDiscovered struct {
 	UpTokenId          string `protobuf:"bytes,3,opt,name=up_token_id,json=upTokenId,proto3" json:"up_token_id,omitempty"`
 	DownTokenId        string `protobuf:"bytes,4,opt,name=down_token_id,json=downTokenId,proto3" json:"down_token_id,omitempty"`
 	DiscoveredAtUnixMs int64  `protobuf:"varint,5,opt,name=discovered_at_unix_ms,json=discoveredAtUnixMs,proto3" json:"discovered_at_unix_ms,omitempty"`
+	StartUnixMs        int64  `protobuf:"varint,6,opt,name=start_unix_ms,json=startUnixMs,proto3" json:"start_unix_ms,omitempty"`
+	EndUnixMs          int64  `protobuf:"varint,7,opt,name=end_unix_ms,json=endUnixMs,proto3" json:"end_unix_ms,omitempty"`
 }
 
 func (m *MarketDiscovered) String() string { return fmt.Sprintf("%+v", *m) }
@@ -72,6 +74,8 @@ type MarketAggregatedPrice struct {
 	DownTokenPrice  float64 `protobuf:"fixed64,7,opt,name=down_token_price,json=downTokenPrice,proto3" json:"down_token_price,omitempty"`
 	TimestampUnixMs int64   `protobuf:"varint,8,opt,name=timestamp_unix_ms,json=timestampUnixMs,proto3" json:"timestamp_unix_ms,omitempty"`
 	LastUpdatedBy   string  `protobuf:"bytes,9,opt,name=last_updated_by,json=lastUpdatedBy,proto3" json:"last_updated_by,omitempty"`
+	StartUnixMs     int64   `protobuf:"varint,10,opt,name=start_unix_ms,json=startUnixMs,proto3" json:"start_unix_ms,omitempty"`
+	EndUnixMs       int64   `protobuf:"varint,11,opt,name=end_unix_ms,json=endUnixMs,proto3" json:"end_unix_ms,omitempty"`
 }
 
 func (m *MarketAggregatedPrice) String() string { return fmt.Sprintf("%+v", *m) }

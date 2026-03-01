@@ -26,7 +26,7 @@ func (a *MarketPriceAggregator) HandleMarketDiscovered(ctx context.Context, mark
 	log.Printf("market discovered: market_id=%s crypto_symbol=%s up_token=%s down_token=%s",
 		market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId)
 
-	return a.redisClient.RegisterMarketTokens(ctx, market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId)
+	return a.redisClient.RegisterMarketTokens(ctx, market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId, market.StartUnixMs, market.EndUnixMs)
 }
 
 // HandleCryptoPrice updates crypto price and publishes aggregated prices for all related markets
@@ -129,6 +129,8 @@ func (a *MarketPriceAggregator) publishAggregatedPrice(state *redis.MarketState)
 		DownTokenPrice:  state.DownTokenPrice,
 		TimestampUnixMs: time.Now().UnixMilli(),
 		LastUpdatedBy:   state.LastUpdatedBy,
+		StartUnixMs:     state.StartUnixMs,
+		EndUnixMs:       state.EndUnixMs,
 	}
 
 	select {
