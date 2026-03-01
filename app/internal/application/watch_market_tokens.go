@@ -190,7 +190,19 @@ func (u *WatchMarketTokensUseCase) publishMarketCreated(ctx context.Context, mar
 		DiscoveredAtUnixMs: time.Now().UnixMilli(),
 		Closed:             market.Closed,
 	}
-	return u.publisher.PublishMarketCreated(ctx, u.marketCreatedSubject, payload)
+	if err := u.publisher.PublishMarketCreated(ctx, u.marketCreatedSubject, payload); err != nil {
+		return err
+	}
+
+	// Also publish the market discovered event for the aggregator
+	discoveredPayload := &proto.MarketDiscovered{
+		MarketId:           market.MarketID,
+		CryptoSymbol:       market.Crypto.MinName,
+		UpTokenId:          market.UpTokenID,
+		DownTokenId:        market.DownTokenID,
+		DiscoveredAtUnixMs: time.Now().UnixMilli(),
+	}
+	return u.publisher.PublishMarketDiscovered(ctx, "market.discovered", discoveredPayload)
 }
 
 func (u *WatchMarketTokensUseCase) publishTokenUpdate(

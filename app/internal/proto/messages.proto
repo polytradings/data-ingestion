@@ -39,3 +39,23 @@ message MarketTrackCommand {
   string up_token_id = 3;
   string down_token_id = 4;
 }
+
+message MarketDiscovered {
+  string market_id = 1;
+  string crypto_symbol = 2;
+  string up_token_id = 3;
+  string down_token_id = 4;
+  int64 discovered_at_unix_ms = 5;
+}
+
+message MarketAggregatedPrice {
+  string market_id = 1;
+  string crypto_symbol = 2;
+  double crypto_price = 3;
+  string up_token_id = 4;
+  double up_token_price = 5;
+  string down_token_id = 6;
+  double down_token_price = 7;
+  int64 timestamp_unix_ms = 8;
+  string last_updated_by = 9; // "crypto" | "token"
+}
