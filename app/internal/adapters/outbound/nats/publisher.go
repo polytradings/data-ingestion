@@ -21,12 +21,7 @@ func (p *ProtoPublisher) PublishCryptoPriceTick(ctx context.Context, subject str
 	if err != nil {
 		return fmt.Errorf("marshal protobuf: %w", err)
 	}
-
-	msg := &nats.Msg{Subject: subject, Data: payload}
-	if err := p.nc.PublishMsg(msg); err != nil {
-		return fmt.Errorf("nats publish: %w", err)
-	}
-	return nil
+	return p.publishPayload(subject, payload)
 }
 
 func (p *ProtoPublisher) PublishTokenPriceTick(ctx context.Context, subject string, tick *proto.TokenPriceTick) error {
@@ -34,12 +29,7 @@ func (p *ProtoPublisher) PublishTokenPriceTick(ctx context.Context, subject stri
 	if err != nil {
 		return fmt.Errorf("marshal protobuf: %w", err)
 	}
-
-	msg := &nats.Msg{Subject: subject, Data: payload}
-	if err := p.nc.PublishMsg(msg); err != nil {
-		return fmt.Errorf("nats publish: %w", err)
-	}
-	return nil
+	return p.publishPayload(subject, payload)
 }
 
 func (p *ProtoPublisher) PublishMarketCreated(ctx context.Context, subject string, market *proto.MarketCreated) error {
@@ -47,7 +37,10 @@ func (p *ProtoPublisher) PublishMarketCreated(ctx context.Context, subject strin
 	if err != nil {
 		return fmt.Errorf("marshal protobuf: %w", err)
 	}
+	return p.publishPayload(subject, payload)
+}
 
+func (p *ProtoPublisher) publishPayload(subject string, payload []byte) error {
 	msg := &nats.Msg{Subject: subject, Data: payload}
 	if err := p.nc.PublishMsg(msg); err != nil {
 		return fmt.Errorf("nats publish: %w", err)

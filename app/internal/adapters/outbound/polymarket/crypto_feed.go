@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -41,49 +40,23 @@ func (f *Feed) Stream(ctx context.Context, symbols []string) (<-chan domain.Pric
 		defer close(prices)
 		defer close(errs)
 
-		backoff := f.backoff
-		reconnectAttempt := 1
-
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-
-			conn, err := retry.DialWebSocketWithRetry(ctx, websocket.DefaultDialer, f.wsURL, "polymarket-crypto", backoff)
-			if err != nil {
-				if ctx.Err() != nil {
-					return
+		err := retry.RunWebSocketSessionWithReconnect(
+			ctx,
+			f.wsURL,
+			"polymarket-crypto",
+			"polymarket dial failed",
+			"polymarket read/ping failed",
+			f.backoff,
+			func(conn *websocket.Conn) error {
+				subscriptionMsg := buildCryptoPricesChainlinkSubscription()
+				if err := conn.WriteMessage(websocket.TextMessage, []byte(subscriptionMsg)); err != nil {
+					return fmt.Errorf("polymarket subscribe failed: %w", err)
 				}
-				errs <- fmt.Errorf("polymarket dial failed: %w", err)
-				return
-			}
-
-			subscriptionMsg := buildCryptoPricesChainlinkSubscription()
-
-			if err := conn.WriteMessage(websocket.TextMessage, []byte(subscriptionMsg)); err != nil {
-				_ = conn.Close()
-				delay := backoff.Duration(reconnectAttempt)
-				log.Printf("polymarket subscribe failed: %v; reconnecting in %s", err, delay)
-				if err := retry.Wait(ctx, delay); err != nil {
-					return
-				}
-				reconnectAttempt++
-				continue
-			}
-
-			reconnectAttempt = 1
-			err = streamPolymarketMessages(ctx, conn, prices, allowedSymbols)
-			_ = conn.Close()
-			if err == nil || ctx.Err() != nil {
-				return
-			}
-
-			delay := backoff.Duration(reconnectAttempt)
-			log.Printf("polymarket read/ping failed: %v; reconnecting in %s", err, delay)
-			if err := retry.Wait(ctx, delay); err != nil {
-				return
-			}
-			reconnectAttempt++
+				return streamPolymarketMessages(ctx, conn, prices, allowedSymbols)
+			},
+		)
+		if err != nil && ctx.Err() == nil {
+			errs <- err
 		}
 	}()
 
@@ -187,13 +160,13 @@ func parsePriceMessage(payload []byte) (domain.PriceTick, bool) {
 	}
 
 	// Extract symbol
-	symbol, ok := extractString(payloadObj, "symbol")
+	symbol, ok := valueAsString(payloadObj, "symbol")
 	if !ok || symbol == "" {
 		return domain.PriceTick{}, false
 	}
 
 	// Extract price value
-	price, ok := extractFloat(payloadObj, "value")
+	price, ok := valueAsFloat64(payloadObj, "value")
 	if !ok {
 		price, ok = extractPriceFromDataSnapshot(payloadObj["data"])
 		if !ok {
@@ -202,7 +175,7 @@ func parsePriceMessage(payload []byte) (domain.PriceTick, bool) {
 	}
 
 	// Extract timestamp from payload or use current time
-	ts, hasTimestamp := extractInt64(payloadObj, "timestamp")
+	ts, hasTimestamp := valueAsInt64(payloadObj, "timestamp")
 	timestamp := time.Now()
 	if hasTimestamp && ts > 0 {
 		timestamp = time.UnixMilli(ts)
@@ -252,53 +225,11 @@ func extractPriceFromDataSnapshot(data any) (float64, bool) {
 		if !ok {
 			continue
 		}
-		value, ok := extractFloat(frame, "value")
+		value, ok := valueAsFloat64(frame, "value")
 		if ok {
 			return value, true
 		}
 	}
 
-	return 0, false
-}
-
-func extractString(body map[string]any, keys ...string) (string, bool) {
-	for _, key := range keys {
-		if v, ok := body[key]; ok {
-			s := strings.TrimSpace(fmt.Sprintf("%v", v))
-			if s != "" {
-				return s, true
-			}
-		}
-	}
-	return "", false
-}
-
-func extractFloat(body map[string]any, keys ...string) (float64, bool) {
-	for _, key := range keys {
-		v, ok := body[key]
-		if !ok {
-			continue
-		}
-		s := fmt.Sprintf("%v", v)
-		f, err := strconv.ParseFloat(s, 64)
-		if err == nil {
-			return f, true
-		}
-	}
-	return 0, false
-}
-
-func extractInt64(body map[string]any, keys ...string) (int64, bool) {
-	for _, key := range keys {
-		v, ok := body[key]
-		if !ok {
-			continue
-		}
-		s := fmt.Sprintf("%v", v)
-		f, err := strconv.ParseFloat(s, 64)
-		if err == nil {
-			return int64(f), true
-		}
-	}
 	return 0, false
 }
