@@ -17,56 +17,7 @@ Any downstream service can subscribe to NATS topics and consume the Protobuf mes
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          External Data Sources                               │
-│                                                                               │
-│   ┌──────────────────┐              ┌─────────────────────────────────────┐  │
-│   │  Binance WebSocket│              │        Polymarket API / WebSocket   │  │
-│   │  (fstream)        │              │  (gamma-api + ws-live-data +        │  │
-│   └────────┬──────────┘              │   ws-subscriptions-clob)            │  │
-│            │                         └────────┬─────────────┬──────────────┘  │
-└────────────┼──────────────────────────────────┼─────────────┼─────────────────┘
-             │                                  │             │
-             ▼                                  ▼             │
-┌────────────────────────────┐  ┌─────────────────────────┐  │
-│  Service 1                 │  │  Service 2               │  │
-│  crypto-ingestion          │  │  crypto-ingestion        │  │
-│  (platform: binance)       │  │  (platform: polymarket)  │  │
-└────────────┬───────────────┘  └───────────┬─────────────┘  │
-             │                               │                │
-             └──────────────┬────────────────┘                │
-                            ▼                                 ▼
-                  ┌─────────────────────────────────────────────────────────┐
-                  │                         NATS                             │
-                  │                                                          │
-                  │  prices.crypto.<asset>.v1    (CryptoPriceTick)          │
-                  │  markets.created.v1          (MarketCreated)            │
-                  │  prices.bet-token.<slug>.v1  (TokenPriceTick)           │
-                  │  market.discovered           (MarketDiscovered)         │
-                  │  prices.market.<slug>.v1     (MarketAggregatedPrice)    │
-                  └───────────┬──────────────────────────────┬──────────────┘
-                              │                              │
-             ┌────────────────┘                              └───────────────────┐
-             ▼                                                                   ▼
-┌────────────────────────────┐                               ┌────────────────────────────┐
-│  Service 3                 │                               │  Service 4                 │
-│  token-ingestion           │ ──── market.discovered ─────▶│  market-price-aggregator   │
-│                            │                               │                            │
-│  • Discovers active markets│                               │  • Merges crypto prices    │
-│    (5m / 15m / 60m)        │                               │    with UP/DOWN token      │
-│  • Publishes MarketCreated │                               │    prices                  │
-│  • Streams UP/DOWN token   │                               │  • Stores state in Redis   │
-│    prices via WebSocket    │                               │  • Publishes aggregated    │
-└────────────────────────────┘                               │    market snapshots        │
-                                                             └────────────┬───────────────┘
-                                                                          │
-                                                                          ▼
-                                                              ┌──────────────────┐
-                                                              │      Redis       │
-                                                              │  (market state)  │
-                                                              └──────────────────┘
-```
+![Architecture Diagram](docs/architecture.png)
 
 ---
 
