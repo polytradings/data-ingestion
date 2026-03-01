@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -45,47 +43,22 @@ func (f *MarketFeed) Stream(ctx context.Context, tokenIDs []string) (<-chan doma
 		}
 		rawPayload, _ := json.Marshal(payload)
 
-		backoff := f.backoff
-		reconnectAttempt := 1
-
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-
-			conn, err := retry.DialWebSocketWithRetry(ctx, websocket.DefaultDialer, f.wsURL, "polymarket-market", backoff)
-			if err != nil {
-				if ctx.Err() != nil {
-					return
+		err := retry.RunWebSocketSessionWithReconnect(
+			ctx,
+			f.wsURL,
+			"polymarket-market",
+			"polymarket market ws dial failed",
+			"polymarket market ws read failed",
+			f.backoff,
+			func(conn *websocket.Conn) error {
+				if err := conn.WriteMessage(websocket.TextMessage, rawPayload); err != nil {
+					return fmt.Errorf("polymarket market ws subscribe failed: %w", err)
 				}
-				errs <- fmt.Errorf("polymarket market ws dial failed: %w", err)
-				return
-			}
-
-			if err := conn.WriteMessage(websocket.TextMessage, rawPayload); err != nil {
-				_ = conn.Close()
-				delay := backoff.Duration(reconnectAttempt)
-				log.Printf("polymarket market ws subscribe failed: %v; reconnecting in %s", err, delay)
-				if err := retry.Wait(ctx, delay); err != nil {
-					return
-				}
-				reconnectAttempt++
-				continue
-			}
-
-			reconnectAttempt = 1
-			err = streamMarketFrames(ctx, conn, updates)
-			_ = conn.Close()
-			if err == nil || ctx.Err() != nil {
-				return
-			}
-
-			delay := backoff.Duration(reconnectAttempt)
-			log.Printf("polymarket market ws read failed: %v; reconnecting in %s", err, delay)
-			if err := retry.Wait(ctx, delay); err != nil {
-				return
-			}
-			reconnectAttempt++
+				return streamMarketFrames(ctx, conn, updates)
+			},
+		)
+		if err != nil && ctx.Err() == nil {
+			errs <- err
 		}
 	}()
 
@@ -129,11 +102,11 @@ func walkFrames(node any, rawPayload []byte, out *[]domain.TokenPriceUpdate) {
 			walkFrames(item, rawPayload, out)
 		}
 	case map[string]any:
-		tokenID := findString(typed, "asset_id", "assetId", "token_id", "tokenId")
-		price, hasPrice := findFloat(typed, "price", "p", "mid", "last_price")
+		tokenID, _ := valueAsString(typed, "asset_id", "assetId", "token_id", "tokenId")
+		price, hasPrice := valueAsFloat64(typed, "price", "p", "mid", "last_price")
 		if tokenID != "" && hasPrice {
 			ts := time.Now()
-			if unixMs, ok := findInt64(typed, "timestamp", "ts", "time"); ok && unixMs > 0 {
+			if unixMs, ok := valueAsInt64(typed, "timestamp", "ts", "time"); ok && unixMs > 0 {
 				ts = time.UnixMilli(unixMs)
 			}
 			*out = append(*out, domain.TokenPriceUpdate{
@@ -147,52 +120,4 @@ func walkFrames(node any, rawPayload []byte, out *[]domain.TokenPriceUpdate) {
 			walkFrames(v, rawPayload, out)
 		}
 	}
-}
-
-func findString(body map[string]any, keys ...string) string {
-	for _, key := range keys {
-		if value, ok := body[key]; ok {
-			s := strings.TrimSpace(fmt.Sprintf("%v", value))
-			if s != "" {
-				return s
-			}
-		}
-	}
-	return ""
-}
-
-func findFloat(body map[string]any, keys ...string) (float64, bool) {
-	for _, key := range keys {
-		value, ok := body[key]
-		if !ok {
-			continue
-		}
-		s := strings.TrimSpace(fmt.Sprintf("%v", value))
-		if s == "" {
-			continue
-		}
-		f, err := strconv.ParseFloat(s, 64)
-		if err == nil {
-			return f, true
-		}
-	}
-	return 0, false
-}
-
-func findInt64(body map[string]any, keys ...string) (int64, bool) {
-	for _, key := range keys {
-		value, ok := body[key]
-		if !ok {
-			continue
-		}
-		s := strings.TrimSpace(fmt.Sprintf("%v", value))
-		if s == "" {
-			continue
-		}
-		f, err := strconv.ParseFloat(s, 64)
-		if err == nil {
-			return int64(f), true
-		}
-	}
-	return 0, false
 }

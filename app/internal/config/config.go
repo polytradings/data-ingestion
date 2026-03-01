@@ -79,17 +79,13 @@ func LoadCryptoIngestionConfig() (CryptoIngestionConfig, error) {
 	if len(cfg.Symbols) == 0 {
 		return cfg, fmt.Errorf("no trading symbols configured")
 	}
-	if cfg.WebSocketRetryInitialDelay <= 0 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_INITIAL_DELAY must be positive")
-	}
-	if cfg.WebSocketRetryMaxDelay <= 0 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_MAX_DELAY must be positive")
-	}
-	if cfg.WebSocketRetryInitialDelay > cfg.WebSocketRetryMaxDelay {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_INITIAL_DELAY must be <= WEBSOCKET_RETRY_MAX_DELAY")
-	}
-	if cfg.WebSocketRetryMultiplier <= 1 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_MULTIPLIER must be > 1")
+	if err := validateRetryConfig(
+		"WEBSOCKET_RETRY",
+		cfg.WebSocketRetryInitialDelay,
+		cfg.WebSocketRetryMaxDelay,
+		cfg.WebSocketRetryMultiplier,
+	); err != nil {
+		return cfg, err
 	}
 
 	return cfg, nil
@@ -137,32 +133,24 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 		MarketTypes: marketTypes,
 	}
 
-	if cfg.WebSocketRetryInitialDelay <= 0 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_INITIAL_DELAY must be positive")
-	}
-	if cfg.WebSocketRetryMaxDelay <= 0 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_MAX_DELAY must be positive")
-	}
-	if cfg.WebSocketRetryInitialDelay > cfg.WebSocketRetryMaxDelay {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_INITIAL_DELAY must be <= WEBSOCKET_RETRY_MAX_DELAY")
-	}
-	if cfg.WebSocketRetryMultiplier <= 1 {
-		return cfg, fmt.Errorf("WEBSOCKET_RETRY_MULTIPLIER must be > 1")
+	if err := validateRetryConfig(
+		"WEBSOCKET_RETRY",
+		cfg.WebSocketRetryInitialDelay,
+		cfg.WebSocketRetryMaxDelay,
+		cfg.WebSocketRetryMultiplier,
+	); err != nil {
+		return cfg, err
 	}
 	if cfg.HTTPRetryMaxAttempts <= 0 {
 		return cfg, fmt.Errorf("HTTP_RETRY_MAX_ATTEMPTS must be positive")
 	}
-	if cfg.HTTPRetryInitialDelay <= 0 {
-		return cfg, fmt.Errorf("HTTP_RETRY_INITIAL_DELAY must be positive")
-	}
-	if cfg.HTTPRetryMaxDelay <= 0 {
-		return cfg, fmt.Errorf("HTTP_RETRY_MAX_DELAY must be positive")
-	}
-	if cfg.HTTPRetryInitialDelay > cfg.HTTPRetryMaxDelay {
-		return cfg, fmt.Errorf("HTTP_RETRY_INITIAL_DELAY must be <= HTTP_RETRY_MAX_DELAY")
-	}
-	if cfg.HTTPRetryMultiplier <= 1 {
-		return cfg, fmt.Errorf("HTTP_RETRY_MULTIPLIER must be > 1")
+	if err := validateRetryConfig(
+		"HTTP_RETRY",
+		cfg.HTTPRetryInitialDelay,
+		cfg.HTTPRetryMaxDelay,
+		cfg.HTTPRetryMultiplier,
+	); err != nil {
+		return cfg, err
 	}
 
 	return cfg, nil
@@ -296,4 +284,20 @@ func tradingSymbolsFromCryptos(cryptos []domain.Crypto, platform string) []strin
 		}
 	}
 	return out
+}
+
+func validateRetryConfig(prefix string, initialDelay, maxDelay time.Duration, multiplier float64) error {
+	if initialDelay <= 0 {
+		return fmt.Errorf("%s_INITIAL_DELAY must be positive", prefix)
+	}
+	if maxDelay <= 0 {
+		return fmt.Errorf("%s_MAX_DELAY must be positive", prefix)
+	}
+	if initialDelay > maxDelay {
+		return fmt.Errorf("%s_INITIAL_DELAY must be <= %s_MAX_DELAY", prefix, prefix)
+	}
+	if multiplier <= 1 {
+		return fmt.Errorf("%s_MULTIPLIER must be > 1", prefix)
+	}
+	return nil
 }

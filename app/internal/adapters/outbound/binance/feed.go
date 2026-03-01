@@ -61,35 +61,19 @@ func (f *Feed) Stream(ctx context.Context, symbols []string) (<-chan domain.Pric
 
 		log.Printf("Link do Websocket=%s", wsURL)
 
-		reconnectAttempt := 1
-		backoff := f.backoff
-
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-
-			conn, err := retry.DialWebSocketWithRetry(ctx, websocket.DefaultDialer, wsURL, "binance", backoff)
-			if err != nil {
-				if ctx.Err() != nil {
-					return
-				}
-				errs <- fmt.Errorf("binance dial failed: %w", err)
-				return
-			}
-
-			err = streamBinanceMessages(ctx, conn, prices)
-			_ = conn.Close()
-			if err == nil || ctx.Err() != nil {
-				return
-			}
-
-			delay := backoff.Duration(reconnectAttempt)
-			log.Printf("binance websocket stream error=%v; reconnecting in %s", err, delay)
-			if err := retry.Wait(ctx, delay); err != nil {
-				return
-			}
-			reconnectAttempt++
+		err := retry.RunWebSocketSessionWithReconnect(
+			ctx,
+			wsURL,
+			"binance",
+			"binance dial failed",
+			"binance websocket stream error",
+			f.backoff,
+			func(conn *websocket.Conn) error {
+				return streamBinanceMessages(ctx, conn, prices)
+			},
+		)
+		if err != nil && ctx.Err() == nil {
+			errs <- err
 		}
 	}()
 

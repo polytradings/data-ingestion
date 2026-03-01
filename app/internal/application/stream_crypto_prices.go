@@ -41,6 +41,9 @@ func (u *StreamCryptoPricesUseCase) Execute(ctx context.Context, symbols []strin
 			if !ok {
 				return fmt.Errorf("price stream ended unexpectedly")
 			}
+			if !shouldPublishCryptoTick(tick) {
+				continue
+			}
 			topicAsset := topicAssetFromSymbol(tick.Symbol)
 			subject := fmt.Sprintf(u.subjectTemplate, topicAsset)
 			if err := u.publisher.PublishCryptoPriceTick(ctx, subject, toProtoTick(tick)); err != nil {
@@ -68,4 +71,8 @@ func topicAssetFromSymbol(symbol string) string {
 		}
 	}
 	return value
+}
+
+func shouldPublishCryptoTick(tick domain.PriceTick) bool {
+	return tick.Price != 0
 }

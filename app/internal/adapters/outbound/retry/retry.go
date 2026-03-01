@@ -97,6 +97,46 @@ func DialWebSocketWithRetry(ctx context.Context, dialer *websocket.Dialer, wsURL
 	}
 }
 
+func RunWebSocketSessionWithReconnect(
+	ctx context.Context,
+	wsURL string,
+	dialLogPrefix string,
+	dialErrPrefix string,
+	retryLogPrefix string,
+	backoff Backoff,
+	runSession func(conn *websocket.Conn) error,
+) error {
+	reconnectAttempt := 1
+
+	for {
+		if ctx.Err() != nil {
+			return nil
+		}
+
+		conn, err := DialWebSocketWithRetry(ctx, websocket.DefaultDialer, wsURL, dialLogPrefix, backoff)
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil
+			}
+			return fmt.Errorf("%s: %w", dialErrPrefix, err)
+		}
+
+		reconnectAttempt = 1
+		err = runSession(conn)
+		_ = conn.Close()
+		if err == nil || ctx.Err() != nil {
+			return nil
+		}
+
+		delay := backoff.Duration(reconnectAttempt)
+		log.Printf("%s: %v; reconnecting in %s", retryLogPrefix, err, delay)
+		if err := Wait(ctx, delay); err != nil {
+			return nil
+		}
+		reconnectAttempt++
+	}
+}
+
 func IsRetriableHTTPStatus(statusCode int) bool {
 	if statusCode >= http.StatusInternalServerError {
 		return true
