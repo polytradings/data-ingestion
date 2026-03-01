@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -29,10 +30,14 @@ func NewClient(redisURL string) (*Client, error) {
 		return nil, err
 	}
 
+	// Increase connection timeout
+	opts.ConnMaxLifetime = 0
+	opts.PoolSize = 10
+
 	rdb := redis.NewClient(opts)
 
-	// Test connection
-	ctx, cancel := context.WithTimeout(context.Background(), 5)
+	// Test connection with longer timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	err = rdb.Ping(ctx).Err()
