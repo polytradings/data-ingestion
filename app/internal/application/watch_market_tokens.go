@@ -225,6 +225,14 @@ func (u *WatchMarketTokensUseCase) publishTokenUpdate(
 		log.Printf("token tick publish failed subject=%s market=%s token=%s: %v", subject, market.MarketID, update.TokenID, err)
 		return
 	}
+	log.Printf(
+		"published token market=%s token=%s side=%s price=%.8f subject=%s",
+		market.MarketID,
+		update.TokenID,
+		binding.side,
+		update.Price,
+		subject,
+	)
 }
 
 func pruneExpiredMarkets(active map[string]domain.ActiveMarket, now time.Time) int {
