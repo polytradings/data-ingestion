@@ -29,6 +29,7 @@ services:
       - ../../app/internal/proto:/proto
 
   crypto-ingestion-binance:
+    container_name: crypto-ingestion-binance
     build:
       context: ../../app
       dockerfile: Dockerfile
@@ -46,6 +47,7 @@ services:
     restart: unless-stopped
 
   crypto-ingestion-polymarket:
+    container_name: crypto-ingestion-polymarket
     build:
       context: ../../app
       dockerfile: Dockerfile
@@ -63,6 +65,7 @@ services:
     restart: unless-stopped
 
   token-ingestion:
+    container_name: token-ingestion
     build:
       context: ../../app
       dockerfile: Dockerfile
