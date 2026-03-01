@@ -1,0 +1,82 @@
+services:
+  nats:
+    image: nats:2.10-alpine
+    container_name: nats
+    command: ["-js", "-m", "8222", "-p", "4222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - nats-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  nats-cli:
+    image: natsio/nats-box
+    container_name: nats-cli
+    environment:
+      - NATS_URL=nats://nats:4222
+    command: ["sleep", "infinity"]
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    volumes:
+      - ../../app/internal/proto:/proto
+
+  crypto-ingestion-binance:
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: crypto-ingestion
+    env_file:
+      - ../../.env
+    environment:
+      INGESTION_PLATFORM: binance
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
+  crypto-ingestion-polymarket:
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: crypto-ingestion
+    env_file:
+      - ../../.env
+    environment:
+      INGESTION_PLATFORM: polymarket
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
+  token-ingestion:
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: token-ingestion
+    env_file:
+      - ../../.env
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
+networks:
+  nats-net:
+    driver: bridge

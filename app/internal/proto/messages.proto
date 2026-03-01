@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package ingestion;
+
+message CryptoPriceTick {
+  string source = 1;
+  string symbol = 2;
+  double price = 3;
+  int64 timestamp_unix_ms = 4;
+}
+
+message TokenPriceTick {
+  string source = 1;
+  string market_id = 2;
+  string condition_id = 3;
+  string token_id = 4;
+  string side = 5;
+  double price = 6;
+  int64 timestamp_unix_ms = 7;
+}
+
+message MarketCreated {
+  string source = 1;
+  string market_id = 2;
+  string condition_id = 3;
+  string crypto_symbol = 4;
+  int32 timeframe_minutes = 5;
+  string up_token_id = 6;
+  string down_token_id = 7;
+  int64 start_unix_ms = 8;
+  int64 end_unix_ms = 9;
+  int64 discovered_at_unix_ms = 10;
+  bool closed = 11;
+}
+
+message MarketTrackCommand {
+  string action = 1; // UPSERT | REMOVE
+  string market_id = 2;
+  string up_token_id = 3;
+  string down_token_id = 4;
+}

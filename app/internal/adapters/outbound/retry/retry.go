@@ -1,0 +1,118 @@
+package retry
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+type Backoff struct {
+	InitialDelay time.Duration
+	MaxDelay     time.Duration
+	Multiplier   float64
+}
+
+func DefaultBackoff() Backoff {
+	return Backoff{
+		InitialDelay: 1 * time.Second,
+		MaxDelay:     30 * time.Second,
+		Multiplier:   2,
+	}
+}
+
+func (b Backoff) Duration(attempt int) time.Duration {
+	if b.InitialDelay <= 0 {
+		b.InitialDelay = time.Second
+	}
+	if b.MaxDelay <= 0 {
+		b.MaxDelay = 30 * time.Second
+	}
+	if b.Multiplier <= 1 {
+		b.Multiplier = 2
+	}
+
+	delay := b.InitialDelay
+	for i := 1; i < attempt; i++ {
+		next := time.Duration(float64(delay) * b.Multiplier)
+		if next > b.MaxDelay {
+			return b.MaxDelay
+		}
+		delay = next
+	}
+
+	if delay > b.MaxDelay {
+		return b.MaxDelay
+	}
+	return delay
+}
+
+func Wait(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
+}
+
+func DialWebSocketWithRetry(ctx context.Context, dialer *websocket.Dialer, wsURL, logPrefix string, backoff Backoff) (*websocket.Conn, error) {
+	if dialer == nil {
+		dialer = websocket.DefaultDialer
+	}
+
+	attempt := 1
+	for {
+		conn, resp, err := dialer.DialContext(ctx, wsURL, nil)
+		if err == nil {
+			if attempt > 1 {
+				log.Printf("%s websocket connected after %d attempts", logPrefix, attempt)
+			}
+			return conn, nil
+		}
+
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		status := 0
+		if resp != nil {
+			status = resp.StatusCode
+		}
+
+		delay := backoff.Duration(attempt)
+		log.Printf("%s websocket dial attempt=%d status=%d err=%v retry_in=%s", logPrefix, attempt, status, err, delay)
+
+		if err := Wait(ctx, delay); err != nil {
+			return nil, err
+		}
+
+		attempt++
+	}
+}
+
+func IsRetriableHTTPStatus(statusCode int) bool {
+	if statusCode >= http.StatusInternalServerError {
+		return true
+	}
+
+	switch statusCode {
+	case http.StatusRequestTimeout, http.StatusTooManyRequests, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
+}
+
+func ExhaustedError(prefix string, attempts int, lastErr error) error {
+	if lastErr == nil {
+		return fmt.Errorf("%s failed after %d attempts", prefix, attempts)
+	}
+	return fmt.Errorf("%s failed after %d attempts: %w", prefix, attempts, lastErr)
+}
