@@ -62,7 +62,8 @@ func NewCryptoPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAgg
 }
 
 func (l *CryptoPriceListener) Start(ctx context.Context) error {
-	subjects := []string{"crypto.price.binance", "crypto.price.polymarket"}
+	// Subscribe to crypto prices with wildcard matching (prices.crypto.*)
+	subjects := []string{"prices.crypto.>"}
 
 	for _, subject := range subjects {
 		subject := subject
@@ -107,7 +108,8 @@ func NewTokenPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAggr
 }
 
 func (l *TokenPriceListener) Start(ctx context.Context) error {
-	sub, err := l.conn.Subscribe("token.price.polymarket", func(msg *nats.Msg) {
+	// Subscribe to all token prices with wildcard matching (prices.bet-token.*)
+	sub, err := l.conn.Subscribe("prices.bet-token.>", func(msg *nats.Msg) {
 		var tokenPrice proto.TokenPriceTick
 		err := proto.UnmarshalTokenPriceTick(msg.Data, &tokenPrice)
 		if err != nil {
@@ -125,7 +127,7 @@ func (l *TokenPriceListener) Start(ctx context.Context) error {
 		return err
 	}
 
-	log.Println("listening for token.price.polymarket")
+	log.Println("listening for prices.bet-token.>")
 	go func() {
 		<-ctx.Done()
 		sub.Unsubscribe()

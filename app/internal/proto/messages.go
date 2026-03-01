@@ -53,11 +53,11 @@ type MarketTrackCommand struct {
 func (m *MarketTrackCommand) String() string { return fmt.Sprintf("%+v", *m) }
 
 type MarketDiscovered struct {
-	MarketId              string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	CryptoSymbol          string `protobuf:"bytes,2,opt,name=crypto_symbol,json=cryptoSymbol,proto3" json:"crypto_symbol,omitempty"`
-	UpTokenId             string `protobuf:"bytes,3,opt,name=up_token_id,json=upTokenId,proto3" json:"up_token_id,omitempty"`
-	DownTokenId           string `protobuf:"bytes,4,opt,name=down_token_id,json=downTokenId,proto3" json:"down_token_id,omitempty"`
-	DiscoveredAtUnixMs    int64  `protobuf:"varint,5,opt,name=discovered_at_unix_ms,json=discoveredAtUnixMs,proto3" json:"discovered_at_unix_ms,omitempty"`
+	MarketId           string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	CryptoSymbol       string `protobuf:"bytes,2,opt,name=crypto_symbol,json=cryptoSymbol,proto3" json:"crypto_symbol,omitempty"`
+	UpTokenId          string `protobuf:"bytes,3,opt,name=up_token_id,json=upTokenId,proto3" json:"up_token_id,omitempty"`
+	DownTokenId        string `protobuf:"bytes,4,opt,name=down_token_id,json=downTokenId,proto3" json:"down_token_id,omitempty"`
+	DiscoveredAtUnixMs int64  `protobuf:"varint,5,opt,name=discovered_at_unix_ms,json=discoveredAtUnixMs,proto3" json:"discovered_at_unix_ms,omitempty"`
 }
 
 func (m *MarketDiscovered) String() string { return fmt.Sprintf("%+v", *m) }

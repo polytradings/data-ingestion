@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -107,6 +108,7 @@ func (c *Client) GetMarketsByToken(ctx context.Context, tokenId string) ([]strin
 }
 
 func (c *Client) GetMarketsByCryptoSymbol(ctx context.Context, cryptoSymbol string) ([]string, error) {
+	symbol := strings.ToLower(cryptoSymbol) // Normalize to lowercase
 	pattern := "market:*"
 	iter := c.rdb.Scan(ctx, 0, pattern, 0).Iterator()
 
@@ -118,7 +120,7 @@ func (c *Client) GetMarketsByCryptoSymbol(ctx context.Context, cryptoSymbol stri
 		if err != nil {
 			continue
 		}
-		if state != nil && state.CryptoSymbol == cryptoSymbol {
+		if state != nil && strings.ToLower(state.CryptoSymbol) == symbol {
 			marketIds = append(marketIds, marketId)
 		}
 	}
