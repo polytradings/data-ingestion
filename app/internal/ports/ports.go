@@ -23,6 +23,7 @@ type MessagePublisher interface {
 	PublishCryptoPriceTick(ctx context.Context, subject string, tick *proto.CryptoPriceTick) error
 	PublishTokenPriceTick(ctx context.Context, subject string, tick *proto.TokenPriceTick) error
 	PublishMarketCreated(ctx context.Context, subject string, market *proto.MarketCreated) error
+	PublishMarketDiscovered(ctx context.Context, subject string, market *proto.MarketDiscovered) error
 }
 
 type MarketRegistry interface {

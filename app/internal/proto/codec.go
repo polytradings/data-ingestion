@@ -399,3 +399,211 @@ func UnmarshalMarketTrackCommand(data []byte, m *MarketTrackCommand) error {
 	}
 	return nil
 }
+
+func MarshalMarketDiscovered(m *MarketDiscovered) ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	var b []byte
+	if m.MarketId != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, m.MarketId)
+	}
+	if m.CryptoSymbol != "" {
+		b = protowire.AppendTag(b, 2, protowire.BytesType)
+		b = protowire.AppendString(b, m.CryptoSymbol)
+	}
+	if m.UpTokenId != "" {
+		b = protowire.AppendTag(b, 3, protowire.BytesType)
+		b = protowire.AppendString(b, m.UpTokenId)
+	}
+	if m.DownTokenId != "" {
+		b = protowire.AppendTag(b, 4, protowire.BytesType)
+		b = protowire.AppendString(b, m.DownTokenId)
+	}
+	if m.DiscoveredAtUnixMs != 0 {
+		b = protowire.AppendTag(b, 5, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.DiscoveredAtUnixMs))
+	}
+	return b, nil
+}
+
+func UnmarshalMarketDiscovered(data []byte, m *MarketDiscovered) error {
+	for len(data) > 0 {
+		num, typ, n := protowire.ConsumeTag(data)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		data = data[n:]
+		switch num {
+		case 1:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.MarketId = v
+			data = data[n:]
+		case 2:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.CryptoSymbol = v
+			data = data[n:]
+		case 3:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.UpTokenId = v
+			data = data[n:]
+		case 4:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.DownTokenId = v
+			data = data[n:]
+		case 5:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.DiscoveredAtUnixMs = int64(v)
+			data = data[n:]
+		default:
+			n := protowire.ConsumeFieldValue(num, typ, data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			data = data[n:]
+		}
+	}
+	return nil
+}
+
+func MarshalMarketAggregatedPrice(m *MarketAggregatedPrice) ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	var b []byte
+	if m.MarketId != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, m.MarketId)
+	}
+	if m.CryptoSymbol != "" {
+		b = protowire.AppendTag(b, 2, protowire.BytesType)
+		b = protowire.AppendString(b, m.CryptoSymbol)
+	}
+	if m.CryptoPrice != 0 {
+		b = protowire.AppendTag(b, 3, protowire.Fixed64Type)
+		b = protowire.AppendFixed64(b, math.Float64bits(m.CryptoPrice))
+	}
+	if m.UpTokenId != "" {
+		b = protowire.AppendTag(b, 4, protowire.BytesType)
+		b = protowire.AppendString(b, m.UpTokenId)
+	}
+	if m.UpTokenPrice != 0 {
+		b = protowire.AppendTag(b, 5, protowire.Fixed64Type)
+		b = protowire.AppendFixed64(b, math.Float64bits(m.UpTokenPrice))
+	}
+	if m.DownTokenId != "" {
+		b = protowire.AppendTag(b, 6, protowire.BytesType)
+		b = protowire.AppendString(b, m.DownTokenId)
+	}
+	if m.DownTokenPrice != 0 {
+		b = protowire.AppendTag(b, 7, protowire.Fixed64Type)
+		b = protowire.AppendFixed64(b, math.Float64bits(m.DownTokenPrice))
+	}
+	if m.TimestampUnixMs != 0 {
+		b = protowire.AppendTag(b, 8, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.TimestampUnixMs))
+	}
+	if m.LastUpdatedBy != "" {
+		b = protowire.AppendTag(b, 9, protowire.BytesType)
+		b = protowire.AppendString(b, m.LastUpdatedBy)
+	}
+	return b, nil
+}
+
+func UnmarshalMarketAggregatedPrice(data []byte, m *MarketAggregatedPrice) error {
+	for len(data) > 0 {
+		num, typ, n := protowire.ConsumeTag(data)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		data = data[n:]
+		switch num {
+		case 1:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.MarketId = v
+			data = data[n:]
+		case 2:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.CryptoSymbol = v
+			data = data[n:]
+		case 3:
+			v, n := protowire.ConsumeFixed64(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.CryptoPrice = math.Float64frombits(v)
+			data = data[n:]
+		case 4:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.UpTokenId = v
+			data = data[n:]
+		case 5:
+			v, n := protowire.ConsumeFixed64(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.UpTokenPrice = math.Float64frombits(v)
+			data = data[n:]
+		case 6:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.DownTokenId = v
+			data = data[n:]
+		case 7:
+			v, n := protowire.ConsumeFixed64(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.DownTokenPrice = math.Float64frombits(v)
+			data = data[n:]
+		case 8:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.TimestampUnixMs = int64(v)
+			data = data[n:]
+		case 9:
+			v, n := protowire.ConsumeString(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.LastUpdatedBy = v
+			data = data[n:]
+		default:
+			n := protowire.ConsumeFieldValue(num, typ, data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			data = data[n:]
+		}
+	}
+	return nil
+}

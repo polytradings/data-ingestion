@@ -28,6 +28,20 @@ services:
     volumes:
       - ../../app/internal/proto:/proto
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - nats-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
   crypto-ingestion-binance:
     container_name: crypto-ingestion-binance
     build:
@@ -75,6 +89,26 @@ services:
       - ../../.env
     depends_on:
       nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
+  market-price-aggregator:
+    container_name: market-price-aggregator
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: market-price-aggregator
+    env_file:
+      - ../../.env
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - nats-net
