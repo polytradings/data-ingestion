@@ -1,0 +1,222 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+  <diagram name="Página-1" id="oKVKt5eYpxgTbuh-fuv8">
+    <mxGraphModel dx="1678" dy="989" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-37" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=22;labelBackgroundColor=default;" value="Data Ingestion: Service Architecture" vertex="1">
+          <mxGeometry height="820" width="880" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=15;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="External Data Sources" vertex="1">
+          <mxGeometry height="150" width="860" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-12" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-18" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-12" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: fstream" vertex="1">
+          <mxGeometry relative="1" x="0.5897" y="1" as="geometry">
+            <mxPoint x="-1" y="9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Binance WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(fstream)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="230" x="184" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-13" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-19" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-13" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: ws-live-data" vertex="1">
+          <mxGeometry relative="1" x="0.5547" y="1" as="geometry">
+            <mxPoint x="-1" y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-17" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-20" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-17" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: gamma-api&lt;div&gt;via: ws-subscriptions-clob&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.5396" as="geometry">
+            <mxPoint y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Polymarket API / WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(gamma-api + ws-live-data + ws-subscriptions-clob)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="370" x="470" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-14" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="450" />
+              <mxPoint x="220" y="450" />
+              <mxPoint x="220" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-21" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-14" style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="prices.crypto.&amp;lt;asset&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="0.6708" y="-1" as="geometry">
+            <mxPoint x="1" y="-99" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 1: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: binance)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes CryptoPriceTick&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="30" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-15" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-22" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-15" style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="prices.crypto.&amp;lt;asset&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.0408" y="-1" as="geometry">
+            <mxPoint x="1" y="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 2: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: polymarket)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes&amp;nbsp;CryptoPriceTick&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="320" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-16" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="450" />
+              <mxPoint x="700" y="450" />
+              <mxPoint x="700" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-23" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-16" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="markets.created.v1&lt;div&gt;prices.bet-token.&amp;lt;slug&amp;gt;.v1&lt;/div&gt;&lt;div&gt;market.discovered&lt;/div&gt;&lt;div&gt;prices.market.&amp;lt;slug&amp;gt;.v1&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.6059" y="2" as="geometry">
+            <mxPoint x="-2" y="-73" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 3: token-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Discovers active markets&amp;nbsp;(5m / 15m / 60m)&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Publishes MarketCreated&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Streams UP/DOWN token&amp;nbsp;prices via WebSocket&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="610" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;prices.crypto.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;markets.created.v1&lt;/td&gt;&lt;td&gt;MarketCreated&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;prices.bet-token.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.discovered&lt;/td&gt;&lt;td&gt;MarketDiscovered&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;prices.market.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;MarketAggregatedPrice&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="410" x="255" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-26" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-27" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-26" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" value="prices.market.&amp;lt;slug&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.2586" as="geometry">
+            <mxPoint x="60" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-35" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="CyQnExDoAJgP8gCPNE_n-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-36" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-35" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;redis.set&lt;/div&gt;&lt;div&gt;redis.get&lt;/div&gt;&lt;div&gt;redis.scan&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.2863" y="-2" as="geometry">
+            <mxPoint x="-188" y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 4:&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;b&gt;market-price-aggregator&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Merges crypto prices&amp;nbsp;with UP/DOWN token&amp;nbsp;prices&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Stores state in Redis&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Publishes aggregated&amp;nbsp;market snapshots (MarketAggregatedPrice)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="30" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f8cecc;strokeColor=#b85450;" value="&lt;b&gt;Redis&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(market state)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;market:&amp;lt;slug&amp;gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="200" x="650" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=22;labelBackgroundColor=default;" value="Data Ingestion: Service Architecture" vertex="1">
+          <mxGeometry height="820" width="880" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=15;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="External Data Sources" vertex="1">
+          <mxGeometry height="150" width="860" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-40" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-41" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-40" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: fstream" vertex="1">
+          <mxGeometry relative="1" x="0.5897" y="1" as="geometry">
+            <mxPoint x="-1" y="9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Binance WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(fstream)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="230" x="184" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-43" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-44" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-43" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: ws-live-data" vertex="1">
+          <mxGeometry relative="1" x="0.5547" y="1" as="geometry">
+            <mxPoint x="-1" y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-45" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-46" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-45" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: gamma-api&lt;div&gt;via: ws-subscriptions-clob&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.5396" as="geometry">
+            <mxPoint y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-47" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Polymarket API / WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(gamma-api + ws-live-data + ws-subscriptions-clob)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="370" x="470" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-48" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="450" />
+              <mxPoint x="220" y="450" />
+              <mxPoint x="220" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-49" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-48" style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="prices.crypto.&amp;lt;asset&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="0.6708" y="-1" as="geometry">
+            <mxPoint x="1" y="-99" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 1: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: binance)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes CryptoPriceTick&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="30" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-51" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-52" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-51" style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="prices.crypto.&amp;lt;asset&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.0408" y="-1" as="geometry">
+            <mxPoint x="1" y="11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 2: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: polymarket)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes&amp;nbsp;CryptoPriceTick&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="320" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-54" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="450" />
+              <mxPoint x="700" y="450" />
+              <mxPoint x="700" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-55" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-54" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="markets.created.v1&lt;div&gt;prices.bet-token.&amp;lt;slug&amp;gt;.v1&lt;/div&gt;&lt;div&gt;market.discovered&lt;/div&gt;&lt;div&gt;prices.market.&amp;lt;slug&amp;gt;.v1&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.6059" y="2" as="geometry">
+            <mxPoint x="-2" y="-73" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-56" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 3: token-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Discovers active markets&amp;nbsp;(5m / 15m / 60m)&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Publishes MarketCreated&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Streams UP/DOWN token&amp;nbsp;prices via WebSocket&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="280" x="610" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;prices.crypto.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;markets.created.v1&lt;/td&gt;&lt;td&gt;MarketCreated&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;prices.bet-token.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.discovered&lt;/td&gt;&lt;td&gt;MarketDiscovered&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;prices.market.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;MarketAggregatedPrice&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="410" x="255" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-58" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-59" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-58" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" value="prices.market.&amp;lt;slug&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.2586" as="geometry">
+            <mxPoint x="60" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-60" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="CyQnExDoAJgP8gCPNE_n-63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-61" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-60" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;redis.set&lt;/div&gt;&lt;div&gt;redis.get&lt;/div&gt;&lt;div&gt;redis.scan&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.2863" y="-2" as="geometry">
+            <mxPoint x="-188" y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-62" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 4:&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;b&gt;market-price-aggregator&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Merges crypto prices&amp;nbsp;with UP/DOWN token&amp;nbsp;prices&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Stores state in Redis&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Publishes aggregated&amp;nbsp;market snapshots (MarketAggregatedPrice)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="30" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-63" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f8cecc;strokeColor=#b85450;" value="&lt;b&gt;Redis&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(market state)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;market:&amp;lt;slug&amp;gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="200" x="650" y="710" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
