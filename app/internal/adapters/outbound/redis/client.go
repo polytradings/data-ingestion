@@ -23,6 +23,8 @@ type MarketState struct {
 	DownTokenId    string
 	DownTokenPrice float64
 	LastUpdatedBy  string
+	StartUnixMs    int64
+	EndUnixMs      int64
 }
 
 func NewClient(redisURL string) (*Client, error) {
@@ -77,12 +79,14 @@ func (c *Client) SetMarketState(ctx context.Context, state *MarketState) error {
 	return c.rdb.Set(ctx, "market:"+state.MarketId, data, 0).Err()
 }
 
-func (c *Client) RegisterMarketTokens(ctx context.Context, marketId, cryptoSymbol, upTokenId, downTokenId string) error {
+func (c *Client) RegisterMarketTokens(ctx context.Context, marketId, cryptoSymbol, upTokenId, downTokenId string, startUnixMs, endUnixMs int64) error {
 	state := &MarketState{
 		MarketId:     marketId,
 		CryptoSymbol: cryptoSymbol,
 		UpTokenId:    upTokenId,
 		DownTokenId:  downTokenId,
+		StartUnixMs:  startUnixMs,
+		EndUnixMs:    endUnixMs,
 	}
 	return c.SetMarketState(ctx, state)
 }

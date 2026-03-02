@@ -425,6 +425,14 @@ func MarshalMarketDiscovered(m *MarketDiscovered) ([]byte, error) {
 		b = protowire.AppendTag(b, 5, protowire.VarintType)
 		b = protowire.AppendVarint(b, uint64(m.DiscoveredAtUnixMs))
 	}
+	if m.StartUnixMs != 0 {
+		b = protowire.AppendTag(b, 6, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.StartUnixMs))
+	}
+	if m.EndUnixMs != 0 {
+		b = protowire.AppendTag(b, 7, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.EndUnixMs))
+	}
 	return b, nil
 }
 
@@ -470,6 +478,20 @@ func UnmarshalMarketDiscovered(data []byte, m *MarketDiscovered) error {
 				return protowire.ParseError(n)
 			}
 			m.DiscoveredAtUnixMs = int64(v)
+			data = data[n:]
+		case 6:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.StartUnixMs = int64(v)
+			data = data[n:]
+		case 7:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.EndUnixMs = int64(v)
 			data = data[n:]
 		default:
 			n := protowire.ConsumeFieldValue(num, typ, data)
@@ -522,6 +544,14 @@ func MarshalMarketAggregatedPrice(m *MarketAggregatedPrice) ([]byte, error) {
 	if m.LastUpdatedBy != "" {
 		b = protowire.AppendTag(b, 9, protowire.BytesType)
 		b = protowire.AppendString(b, m.LastUpdatedBy)
+	}
+	if m.StartUnixMs != 0 {
+		b = protowire.AppendTag(b, 10, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.StartUnixMs))
+	}
+	if m.EndUnixMs != 0 {
+		b = protowire.AppendTag(b, 11, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(m.EndUnixMs))
 	}
 	return b, nil
 }
@@ -596,6 +626,20 @@ func UnmarshalMarketAggregatedPrice(data []byte, m *MarketAggregatedPrice) error
 				return protowire.ParseError(n)
 			}
 			m.LastUpdatedBy = v
+			data = data[n:]
+		case 10:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.StartUnixMs = int64(v)
+			data = data[n:]
+		case 11:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return protowire.ParseError(n)
+			}
+			m.EndUnixMs = int64(v)
 			data = data[n:]
 		default:
 			n := protowire.ConsumeFieldValue(num, typ, data)

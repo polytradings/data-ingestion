@@ -201,6 +201,8 @@ func (u *WatchMarketTokensUseCase) publishMarketCreated(ctx context.Context, mar
 		UpTokenId:          market.UpTokenID,
 		DownTokenId:        market.DownTokenID,
 		DiscoveredAtUnixMs: time.Now().UnixMilli(),
+		StartUnixMs:        market.StartTime.UnixMilli(),
+		EndUnixMs:          market.EndTime.UnixMilli(),
 	}
 	return u.publisher.PublishMarketDiscovered(ctx, "market.discovered", discoveredPayload)
 }

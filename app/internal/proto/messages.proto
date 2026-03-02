@@ -46,6 +46,8 @@ message MarketDiscovered {
   string up_token_id = 3;
   string down_token_id = 4;
   int64 discovered_at_unix_ms = 5;
+  int64 start_unix_ms = 6;
+  int64 end_unix_ms = 7;
 }
 
 message MarketAggregatedPrice {
@@ -58,4 +60,6 @@ message MarketAggregatedPrice {
   double down_token_price = 7;
   int64 timestamp_unix_ms = 8;
   string last_updated_by = 9; // "crypto" | "token"
+  int64 start_unix_ms = 10;
+  int64 end_unix_ms = 11;
 }
