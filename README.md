@@ -69,13 +69,18 @@ Listens to crypto and token price events and merges them into a single enriched 
 - **Subscribes to** three NATS topics: `market.discovered`, `prices.crypto.*`, `prices.bet-token.*`.
 - **State stored in Redis** — each market's latest prices are persisted.
 - **Publishes** a unified `MarketAggregatedPrice` event whenever a crypto or token price update arrives.
+- **Uses shared ProtoPublisher** — reuses the same NATS publisher infrastructure for consistency.
 
 **Key env vars:**
 
-| Variable | Description | Example |
-|---|---|---|
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
-| `NATS_URL` | NATS server URL | `nats://localhost:4222` |
+| Variable | Description | Default | Example |
+|---|---|---|---|
+| `REDIS_URL` | Redis connection string | `redis://localhost:6379` | `redis://localhost:6379` |
+| `NATS_URL` | NATS server URL | `nats://localhost:4222` | `nats://localhost:4222` |
+| `NATS_SUBJECT_MARKET_AGGREGATED_PRICE` | Subject for aggregated market prices | `market.prices.aggregated.v1` | `market.prices.aggregated.v1` |
+| `NATS_SUBJECT_MARKET_DISCOVERED` | Subject to listen for market discovery | `markets.discovered.v1` | `markets.discovered.v1` |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN` | Pattern to subscribe to crypto prices | `prices.crypto.*.v1` | `prices.crypto.*.v1` |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN` | Pattern to subscribe to token prices | `prices.bet-token.*.v1` | `prices.bet-token.*.v1` |
 
 ---
 
@@ -85,9 +90,9 @@ Listens to crypto and token price events and merges them into a single enriched 
 |---|---|---|---|
 | `prices.crypto.<asset>.v1` | Published | `CryptoPriceTick` | Live price tick for a tracked crypto asset (e.g. `prices.crypto.btc.v1`) |
 | `markets.created.v1` | Published | `MarketCreated` | A new prediction market was discovered |
-| `market.discovered` | Internal | `MarketDiscovered` | Internal signal used by the aggregator to track a new market |
+| `markets.discovered.v1` | Internal | `MarketDiscovered` | Internal signal used by the aggregator to track a new market |
 | `prices.bet-token.<market_slug>.v1` | Published | `TokenPriceTick` | Live UP/DOWN token price for an active market |
-| `prices.market.<market_slug>.v1` | Published | `MarketAggregatedPrice` | Aggregated snapshot: crypto price + UP/DOWN token prices |
+| `market.prices.aggregated.v1` | Published | `MarketAggregatedPrice` | Aggregated snapshot: crypto price + UP/DOWN token prices (subject configurable via `NATS_SUBJECT_MARKET_AGGREGATED_PRICE`) |
 
 ---
 

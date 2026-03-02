@@ -49,6 +49,15 @@ type TokenIngestionConfig struct {
 	MarketTypes []domain.MarketType
 }
 
+type MarketPriceAggregatorConfig struct {
+	NATSURL                             string
+	NATSMarketAggregatedPriceSubject    string
+	NATSMarketDiscoveredSubject         string
+	NATSCryptoPriceSubjectPattern       string
+	NATSTokenPriceSubjectPattern        string
+	RedisURL                            string
+}
+
 func LoadCryptoIngestionConfig() (CryptoIngestionConfig, error) {
 	platform := strings.ToLower(getOrDefault("INGESTION_PLATFORM", "binance"))
 
@@ -151,6 +160,19 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 		cfg.HTTPRetryMultiplier,
 	); err != nil {
 		return cfg, err
+	}
+
+	return cfg, nil
+}
+
+func LoadMarketPriceAggregatorConfig() (MarketPriceAggregatorConfig, error) {
+	cfg := MarketPriceAggregatorConfig{
+		NATSURL:                          getOrDefault("NATS_URL", "nats://localhost:4222"),
+		NATSMarketAggregatedPriceSubject: getOrDefault("NATS_SUBJECT_MARKET_AGGREGATED_PRICE", "market.prices.aggregated.v1"),
+		NATSMarketDiscoveredSubject:      getOrDefault("NATS_SUBJECT_MARKET_DISCOVERED", "markets.discovered.v1"),
+		NATSCryptoPriceSubjectPattern:    getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN", "prices.crypto.*.v1"),
+		NATSTokenPriceSubjectPattern:     getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN", "prices.bet-token.*.v1"),
+		RedisURL:                         getOrDefault("REDIS_URL", "redis://localhost:6379"),
 	}
 
 	return cfg, nil
