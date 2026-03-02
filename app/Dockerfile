@@ -1,12 +1,15 @@
 FROM golang:1.22-alpine AS builder
 WORKDIR /src
 
+ARG TARGETOS=linux
+ARG TARGETARCH
+
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 ARG SERVICE=crypto-ingestion
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /out/service ./cmd/${SERVICE}
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH:-$(go env GOARCH)} go build -o /out/service ./cmd/${SERVICE}
 
 FROM alpine:3.20
 WORKDIR /app

@@ -184,10 +184,52 @@ message MarketAggregatedPrice {
 ```bash
 cp .env.example .env
 cd infra/docker
-docker compose up --build
+./compose-up.sh
+./compose-up.sh -d
 ```
 
 This starts all services plus NATS and Redis.
+
+### WSL / Architecture (GOARCH)
+
+Use the helper scripts in `infra/docker` (they detect architecture via `uname -m` and set `TARGETARCH` automatically):
+
+```bash
+cd infra/docker
+./compose-up.sh
+```
+
+To only build images:
+
+```bash
+cd infra/docker
+./compose-build.sh
+```
+
+If you prefer running Docker Compose directly (advanced usage), you can still force architecture manually:
+
+```bash
+# Force AMD64 (x86_64)
+TARGETARCH=amd64 docker compose up --build
+
+# Force ARM64
+TARGETARCH=arm64 docker compose up --build
+```
+
+Quick architecture check (troubleshooting):
+
+```bash
+# Host (WSL/Linux)
+uname -m
+
+# Inside a running service container
+docker compose exec crypto-ingestion-binance uname -m
+```
+
+Common outputs:
+
+- `x86_64` => use `TARGETARCH=amd64`
+- `aarch64` or `arm64` => use `TARGETARCH=arm64`
 
 ### Running Individual Services
 
