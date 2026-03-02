@@ -74,6 +74,7 @@ func main() {
 
 	// Start publisher loop
 	go publisher.PublishLoop(pubChan)
+	log.Println("publisher loop started as goroutine")
 
 	log.Println("market price aggregator started")
 

@@ -22,24 +22,30 @@ func (p *MarketAggregatedPricePublisher) Publish(msg *proto.MarketAggregatedPric
 
 	payload, err := proto.MarshalMarketAggregatedPrice(msg)
 	if err != nil {
-		log.Printf("error marshaling aggregated price: %v", err)
+		log.Printf("[NATS] error marshaling aggregated price: %v", err)
 		return err
 	}
 
 	err = p.conn.Publish(subject, payload)
 	if err != nil {
-		log.Printf("error publishing to %s: %v", subject, err)
+		log.Printf("[NATS] error publishing to %s: %v", subject, err)
 		return err
 	}
+
+	log.Printf("[NATS] successfully published to %s: market_id=%s crypto=%.8f up=%.8f down=%.8f",
+		subject, msg.MarketId, msg.CryptoPrice, msg.UpTokenPrice, msg.DownTokenPrice)
 
 	return nil
 }
 
 func (p *MarketAggregatedPricePublisher) PublishLoop(pubChan <-chan *proto.MarketAggregatedPrice) {
+	log.Println("[NATS] PublishLoop started, waiting for messages...")
 	for msg := range pubChan {
+		log.Printf("[NATS] received message from channel: market_id=%s", msg.MarketId)
 		err := p.Publish(msg)
 		if err != nil {
-			log.Printf("error in publish loop: %v", err)
+			log.Printf("[NATS] error in publish loop: %v", err)
 		}
 	}
+	log.Println("[NATS] PublishLoop ended")
 }

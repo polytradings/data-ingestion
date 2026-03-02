@@ -135,9 +135,9 @@ func (a *MarketPriceAggregator) publishAggregatedPrice(state *redis.MarketState)
 
 	select {
 	case a.publishChan <- msg:
-		log.Printf("published aggregated price: market_id=%s crypto=%.8f up=%.8f down=%.8f",
+		log.Printf("[CHANNEL] sent aggregated price to publish channel: market_id=%s crypto=%.8f up=%.8f down=%.8f",
 			msg.MarketId, msg.CryptoPrice, msg.UpTokenPrice, msg.DownTokenPrice)
 	default:
-		log.Printf("publish channel full for market %s, skipping", state.MarketId)
+		log.Printf("[CHANNEL] publish channel full for market %s, skipping", state.MarketId)
 	}
 }
