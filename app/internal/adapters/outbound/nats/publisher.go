@@ -40,8 +40,8 @@ func (p *ProtoPublisher) PublishMarketCreated(ctx context.Context, subject strin
 	return p.publishPayload(subject, payload)
 }
 
-func (p *ProtoPublisher) PublishMarketDiscovered(ctx context.Context, subject string, market *proto.MarketDiscovered) error {
-	payload, err := proto.MarshalMarketDiscovered(market)
+func (p *ProtoPublisher) PublishMarketAggregatedPrice(ctx context.Context, subject string, price *proto.MarketAggregatedPrice) error {
+	payload, err := proto.MarshalMarketAggregatedPrice(price)
 	if err != nil {
 		return fmt.Errorf("marshal protobuf: %w", err)
 	}

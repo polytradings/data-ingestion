@@ -48,7 +48,7 @@ func main() {
 		publisher,
 		cfg.Cryptos,
 		cfg.MarketTypes,
-		cfg.NATSTokenSubjectTemplate,
+		cfg.NATSTokenSubjectPattern,
 		cfg.NATSMarketCreatedSubject,
 		cfg.MarketDiscoverInterval,
 	)

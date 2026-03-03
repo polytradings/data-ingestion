@@ -20,12 +20,6 @@ type PriceTick struct {
 	Timestamp      time.Time
 }
 
-type MarketTokens struct {
-	MarketID    string
-	UpTokenID   string
-	DownTokenID string
-}
-
 type Crypto struct {
 	MinName   string
 	FullName  string

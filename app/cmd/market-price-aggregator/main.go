@@ -7,40 +7,36 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/nats-io/nats.go"
 	"github.com/polytradings/data-ingestion/internal/adapters/inbound/market_price_aggregator"
-	"github.com/polytradings/data-ingestion/internal/adapters/outbound"
+	natsadapter "github.com/polytradings/data-ingestion/internal/adapters/outbound/nats"
 	redisclient "github.com/polytradings/data-ingestion/internal/adapters/outbound/redis"
 	"github.com/polytradings/data-ingestion/internal/application/services"
+	"github.com/polytradings/data-ingestion/internal/config"
 	"github.com/polytradings/data-ingestion/internal/proto"
 )
 
 func main() {
-	// Load configuration from environment
-	natsURL := os.Getenv("NATS_URL")
-	if natsURL == "" {
-		natsURL = "nats://localhost:4222"
-	}
-
-	redisURL := os.Getenv("REDIS_URL")
-	if redisURL == "" {
-		redisURL = "redis://localhost:6379"
+	// Load configuration
+	cfg, err := config.LoadMarketPriceAggregatorConfig()
+	if err != nil {
+		log.Fatalf("error loading config: %v", err)
 	}
 
 	// Connect to NATS
-	nc, err := nats.Connect(natsURL)
+	nc, err := natsadapter.Connect(cfg.NATSURL)
 	if err != nil {
 		log.Fatalf("error connecting to nats: %v", err)
 	}
 	defer nc.Close()
-	log.Printf("connected to nats: %s", natsURL)
+	log.Printf("connected to nats: %s", cfg.NATSURL)
 
 	// Connect to Redis
-	redisConn, err := redisclient.NewClient(redisURL)
+	redisConn, err := redisclient.NewClient(cfg.RedisURL)
 	if err != nil {
 		log.Fatalf("error connecting to redis: %v", err)
 	}
 	defer redisConn.Close()
+	log.Printf("connected to redis: %s", cfg.RedisURL)
 
 	// Create publish channel
 	pubChan := make(chan *proto.MarketAggregatedPrice, 100)
@@ -48,17 +44,29 @@ func main() {
 	// Create aggregator
 	aggregator := services.NewMarketPriceAggregator(redisConn, pubChan)
 
-	// Create listeners
-	marketDiscoveredListener := market_price_aggregator.NewMarketDiscoveredListener(nc, aggregator)
-	cryptoPriceListener := market_price_aggregator.NewCryptoPriceListener(nc, aggregator)
-	tokenPriceListener := market_price_aggregator.NewTokenPriceListener(nc, aggregator)
+	// Create listeners with configured subjects
+	marketCreatedListener := market_price_aggregator.NewMarketCreatedListener(
+		nc,
+		aggregator,
+		cfg.NATSMarketCreatedSubject,
+	)
+	cryptoPriceListener := market_price_aggregator.NewCryptoPriceListener(
+		nc,
+		aggregator,
+		cfg.NATSCryptoPriceSubjectPattern,
+	)
+	tokenPriceListener := market_price_aggregator.NewTokenPriceListener(
+		nc,
+		aggregator,
+		cfg.NATSTokenPriceSubjectPattern,
+	)
 
 	// Start listeners
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := marketDiscoveredListener.Start(ctx); err != nil {
-		log.Fatalf("error starting market discovered listener: %v", err)
+	if err := marketCreatedListener.Start(ctx); err != nil {
+		log.Fatalf("error starting market created listener: %v", err)
 	}
 
 	if err := cryptoPriceListener.Start(ctx); err != nil {
@@ -70,10 +78,24 @@ func main() {
 	}
 
 	// Create publisher
-	publisher := outbound.NewMarketAggregatedPricePublisher(nc)
+	publisher := natsadapter.NewProtoPublisher(nc)
 
 	// Start publisher loop
-	go publisher.PublishLoop(pubChan)
+	go func() {
+		log.Println("[NATS] publisher loop started, waiting for messages...")
+		for msg := range pubChan {
+			log.Printf("[NATS] received aggregated price for market: %s", msg.MarketId)
+			subject := cfg.NATSMarketAggregatedPriceSubject
+			err := publisher.PublishMarketAggregatedPrice(ctx, subject, msg)
+			if err != nil {
+				log.Printf("[NATS] error publishing aggregated price: %v", err)
+			} else {
+				log.Printf("[NATS] successfully published to %s: market_id=%s crypto=%.8f up=%.8f down=%.8f",
+					subject, msg.MarketId, msg.CryptoPrice, msg.UpTokenPrice, msg.DownTokenPrice)
+			}
+		}
+		log.Println("[NATS] publisher loop ended")
+	}()
 
 	log.Println("market price aggregator started")
 

@@ -19,7 +19,7 @@ type WatchMarketTokensUseCase struct {
 	publisher            ports.MessagePublisher
 	cryptos              []domain.Crypto
 	marketTypes          []domain.MarketType
-	tokenSubjectTemplate string
+	tokenSubjectPattern  string
 	marketCreatedSubject string
 	discoverInterval     time.Duration
 }
@@ -30,7 +30,7 @@ func NewWatchMarketTokensUseCase(
 	publisher ports.MessagePublisher,
 	cryptos []domain.Crypto,
 	marketTypes []domain.MarketType,
-	tokenSubjectTemplate string,
+	tokenSubjectPattern string,
 	marketCreatedSubject string,
 	discoverInterval time.Duration,
 ) *WatchMarketTokensUseCase {
@@ -40,7 +40,7 @@ func NewWatchMarketTokensUseCase(
 		publisher:            publisher,
 		cryptos:              cryptos,
 		marketTypes:          marketTypes,
-		tokenSubjectTemplate: tokenSubjectTemplate,
+		tokenSubjectPattern:  tokenSubjectPattern,
 		marketCreatedSubject: marketCreatedSubject,
 		discoverInterval:     discoverInterval,
 	}
@@ -190,21 +190,7 @@ func (u *WatchMarketTokensUseCase) publishMarketCreated(ctx context.Context, mar
 		DiscoveredAtUnixMs: time.Now().UnixMilli(),
 		Closed:             market.Closed,
 	}
-	if err := u.publisher.PublishMarketCreated(ctx, u.marketCreatedSubject, payload); err != nil {
-		return err
-	}
-
-	// Also publish the market discovered event for the aggregator
-	discoveredPayload := &proto.MarketDiscovered{
-		MarketId:           market.MarketID,
-		CryptoSymbol:       market.Crypto.MinName,
-		UpTokenId:          market.UpTokenID,
-		DownTokenId:        market.DownTokenID,
-		DiscoveredAtUnixMs: time.Now().UnixMilli(),
-		StartUnixMs:        market.StartTime.UnixMilli(),
-		EndUnixMs:          market.EndTime.UnixMilli(),
-	}
-	return u.publisher.PublishMarketDiscovered(ctx, "market.discovered", discoveredPayload)
+	return u.publisher.PublishMarketCreated(ctx, u.marketCreatedSubject, payload)
 }
 
 func (u *WatchMarketTokensUseCase) publishTokenUpdate(
@@ -225,7 +211,7 @@ func (u *WatchMarketTokensUseCase) publishTokenUpdate(
 		return
 	}
 
-	subject := fmt.Sprintf(u.tokenSubjectTemplate, sanitizeSubjectToken(market.MarketID))
+	subject := fmt.Sprintf(u.tokenSubjectPattern, sanitizeSubjectToken(market.MarketID))
 	payload := &proto.TokenPriceTick{
 		Source:          "polymarket",
 		MarketId:        market.MarketID,

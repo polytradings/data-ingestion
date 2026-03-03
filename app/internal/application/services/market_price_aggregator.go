@@ -21,9 +21,9 @@ func NewMarketPriceAggregator(redisClient *redis.Client, publishChan chan *proto
 	}
 }
 
-// HandleMarketDiscovered registers a new market and its token associations
-func (a *MarketPriceAggregator) HandleMarketDiscovered(ctx context.Context, market *proto.MarketDiscovered) error {
-	log.Printf("market discovered: market_id=%s crypto_symbol=%s up_token=%s down_token=%s",
+// HandleMarketCreated registers a new market and its token associations
+func (a *MarketPriceAggregator) HandleMarketCreated(ctx context.Context, market *proto.MarketCreated) error {
+	log.Printf("market created: market_id=%s crypto_symbol=%s up_token=%s down_token=%s",
 		market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId)
 
 	return a.redisClient.RegisterMarketTokens(ctx, market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId, market.StartUnixMs, market.EndUnixMs)
@@ -135,9 +135,9 @@ func (a *MarketPriceAggregator) publishAggregatedPrice(state *redis.MarketState)
 
 	select {
 	case a.publishChan <- msg:
-		log.Printf("published aggregated price: market_id=%s crypto=%.8f up=%.8f down=%.8f",
+		log.Printf("[CHANNEL] sent aggregated price to publish channel: market_id=%s crypto=%.8f up=%.8f down=%.8f",
 			msg.MarketId, msg.CryptoPrice, msg.UpTokenPrice, msg.DownTokenPrice)
 	default:
-		log.Printf("publish channel full for market %s, skipping", state.MarketId)
+		log.Printf("[CHANNEL] publish channel full for market %s, skipping", state.MarketId)
 	}
 }
