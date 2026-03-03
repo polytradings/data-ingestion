@@ -47,7 +47,7 @@ func main() {
 		log.Fatalf("unsupported platform: %s", cfg.Platform)
 	}
 
-	uc := application.NewStreamCryptoPricesUseCase(feed, publisher, cfg.NATSCryptoSubjectTemplate)
+	uc := application.NewStreamCryptoPricesUseCase(feed, publisher, cfg.NATSCryptoSubjectPattern)
 
 	log.Printf("market-ingestion started platform=%s symbols=%v", cfg.Platform, cfg.Symbols)
 	if err := uc.Execute(ctx, cfg.Symbols); err != nil {

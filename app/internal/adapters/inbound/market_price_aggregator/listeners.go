@@ -9,30 +9,32 @@ import (
 	"github.com/polytradings/data-ingestion/internal/proto"
 )
 
-type MarketDiscoveredListener struct {
+type MarketCreatedListener struct {
 	conn       *nats.Conn
 	aggregator *services.MarketPriceAggregator
+	subject    string
 }
 
-func NewMarketDiscoveredListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator) *MarketDiscoveredListener {
-	return &MarketDiscoveredListener{
+func NewMarketCreatedListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator, subject string) *MarketCreatedListener {
+	return &MarketCreatedListener{
 		conn:       conn,
 		aggregator: aggregator,
+		subject:    subject,
 	}
 }
 
-func (l *MarketDiscoveredListener) Start(ctx context.Context) error {
-	sub, err := l.conn.Subscribe("market.discovered", func(msg *nats.Msg) {
-		var market proto.MarketDiscovered
-		err := proto.UnmarshalMarketDiscovered(msg.Data, &market)
+func (l *MarketCreatedListener) Start(ctx context.Context) error {
+	sub, err := l.conn.Subscribe(l.subject, func(msg *nats.Msg) {
+		var market proto.MarketCreated
+		err := proto.UnmarshalMarketCreated(msg.Data, &market)
 		if err != nil {
-			log.Printf("error unmarshaling market discovered: %v", err)
+			log.Printf("error unmarshaling market created: %v", err)
 			return
 		}
 
-		err = l.aggregator.HandleMarketDiscovered(ctx, &market)
+		err = l.aggregator.HandleMarketCreated(ctx, &market)
 		if err != nil {
-			log.Printf("error handling market discovered: %v", err)
+			log.Printf("error handling market created: %v", err)
 		}
 	})
 
@@ -40,7 +42,7 @@ func (l *MarketDiscoveredListener) Start(ctx context.Context) error {
 		return err
 	}
 
-	log.Println("listening for market.discovered events")
+	log.Printf("listening for %s", l.subject)
 	go func() {
 		<-ctx.Done()
 		sub.Unsubscribe()
@@ -52,21 +54,22 @@ func (l *MarketDiscoveredListener) Start(ctx context.Context) error {
 type CryptoPriceListener struct {
 	conn       *nats.Conn
 	aggregator *services.MarketPriceAggregator
+	subject    string
 }
 
-func NewCryptoPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator) *CryptoPriceListener {
+func NewCryptoPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator, subject string) *CryptoPriceListener {
 	return &CryptoPriceListener{
 		conn:       conn,
 		aggregator: aggregator,
+		subject:    subject,
 	}
 }
 
 func (l *CryptoPriceListener) Start(ctx context.Context) error {
-	// Subscribe to crypto prices with wildcard matching (prices.crypto.*)
-	subjects := []string{"prices.crypto.>"}
+	// Subscribe to crypto prices with wildcard matching
+	subjects := []string{l.subject}
 
 	for _, subject := range subjects {
-		subject := subject
 		_, err := l.conn.Subscribe(subject, func(msg *nats.Msg) {
 			var cryptoPrice proto.CryptoPriceTick
 			err := proto.UnmarshalCryptoPriceTick(msg.Data, &cryptoPrice)
@@ -98,18 +101,20 @@ func (l *CryptoPriceListener) Start(ctx context.Context) error {
 type TokenPriceListener struct {
 	conn       *nats.Conn
 	aggregator *services.MarketPriceAggregator
+	subject    string
 }
 
-func NewTokenPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator) *TokenPriceListener {
+func NewTokenPriceListener(conn *nats.Conn, aggregator *services.MarketPriceAggregator, subject string) *TokenPriceListener {
 	return &TokenPriceListener{
 		conn:       conn,
 		aggregator: aggregator,
+		subject:    subject,
 	}
 }
 
 func (l *TokenPriceListener) Start(ctx context.Context) error {
-	// Subscribe to all token prices with wildcard matching (prices.bet-token.*)
-	sub, err := l.conn.Subscribe("prices.bet-token.>", func(msg *nats.Msg) {
+	// Subscribe to all token prices with wildcard matching
+	sub, err := l.conn.Subscribe(l.subject, func(msg *nats.Msg) {
 		var tokenPrice proto.TokenPriceTick
 		err := proto.UnmarshalTokenPriceTick(msg.Data, &tokenPrice)
 		if err != nil {
@@ -127,7 +132,7 @@ func (l *TokenPriceListener) Start(ctx context.Context) error {
 		return err
 	}
 
-	log.Println("listening for prices.bet-token.>")
+	log.Printf("listening for %s", l.subject)
 	go func() {
 		<-ctx.Done()
 		sub.Unsubscribe()

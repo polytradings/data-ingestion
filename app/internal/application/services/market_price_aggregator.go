@@ -21,9 +21,9 @@ func NewMarketPriceAggregator(redisClient *redis.Client, publishChan chan *proto
 	}
 }
 
-// HandleMarketDiscovered registers a new market and its token associations
-func (a *MarketPriceAggregator) HandleMarketDiscovered(ctx context.Context, market *proto.MarketDiscovered) error {
-	log.Printf("market discovered: market_id=%s crypto_symbol=%s up_token=%s down_token=%s",
+// HandleMarketCreated registers a new market and its token associations
+func (a *MarketPriceAggregator) HandleMarketCreated(ctx context.Context, market *proto.MarketCreated) error {
+	log.Printf("market created: market_id=%s crypto_symbol=%s up_token=%s down_token=%s",
 		market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId)
 
 	return a.redisClient.RegisterMarketTokens(ctx, market.MarketId, market.CryptoSymbol, market.UpTokenId, market.DownTokenId, market.StartUnixMs, market.EndUnixMs)

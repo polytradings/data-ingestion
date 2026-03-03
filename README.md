@@ -33,11 +33,11 @@ Connects to a price feed (Binance or Polymarket) and publishes live cryptocurren
 
 **Key env vars:**
 
-| Variable | Description | Example |
-|---|---|---|
-| `INGESTION_PLATFORM` | Data source platform | `binance` or `polymarket` |
-| `CRYPTO_SYMBOLS` | Symbols to track (`min:full:convert`) | `btc:bitcoin:usdc,eth:ethereum:usdc` |
-| `NATS_SUBJECT_CRYPTO_PRICE_TEMPLATE` | NATS subject pattern | `prices.crypto.%s.v1` |
+| Variable                            | Description                           | Example                              |
+| ----------------------------------- | ------------------------------------- | ------------------------------------ |
+| `INGESTION_PLATFORM`                | Data source platform                  | `binance` or `polymarket`            |
+| `CRYPTO_SYMBOLS`                    | Symbols to track (`min:full:convert`) | `btc:bitcoin:usdc,eth:ethereum:usdc` |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN` | NATS subject pattern                  | `crypto.prices.%s.v1`                |
 
 ---
 
@@ -53,12 +53,12 @@ Periodically discovers active Polymarket prediction markets and streams UP/DOWN 
 
 **Key env vars:**
 
-| Variable | Description | Example |
-|---|---|---|
-| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS` | How often to scan for new markets | `10` |
-| `TOKEN_MARKET_TYPES` | Timeframe windows (minutes) | `5,15,60` |
-| `NATS_SUBJECT_MARKET_CREATED` | Subject for new-market events | `markets.created.v1` |
-| `NATS_SUBJECT_BET_TOKEN_PRICE_TEMPLATE` | Subject pattern for token prices | `prices.bet-token.%s.v1` |
+| Variable                                  | Description                       | Example              |
+| ----------------------------------------- | --------------------------------- | -------------------- |
+| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS` | How often to scan for new markets | `10`                 |
+| `TOKEN_MARKET_TYPES`                      | Timeframe windows (minutes)       | `5,15,60`            |
+| `NATS_SUBJECT_MARKET_CREATED`             | Subject for new-market events     | `market.created.v1`  |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN`        | Subject pattern for token prices  | `token.prices.%s.v1` |
 
 ---
 
@@ -66,33 +66,32 @@ Periodically discovers active Polymarket prediction markets and streams UP/DOWN 
 
 Listens to crypto and token price events and merges them into a single enriched snapshot per market.
 
-- **Subscribes to** three NATS topics: `market.discovered`, `prices.crypto.*`, `prices.bet-token.*`.
+- **Subscribes to** three NATS topics: `market.created.v1`, `crypto.prices.>`, `token.prices.>` (all configurable).
 - **State stored in Redis** — each market's latest prices are persisted.
 - **Publishes** a unified `MarketAggregatedPrice` event whenever a crypto or token price update arrives.
 - **Uses shared ProtoPublisher** — reuses the same NATS publisher infrastructure for consistency.
 
 **Key env vars:**
 
-| Variable | Description | Default | Example |
-|---|---|---|---|
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379` | `redis://localhost:6379` |
-| `NATS_URL` | NATS server URL | `nats://localhost:4222` | `nats://localhost:4222` |
-| `NATS_SUBJECT_MARKET_AGGREGATED_PRICE` | Subject for aggregated market prices | `market.prices.aggregated.v1` | `market.prices.aggregated.v1` |
-| `NATS_SUBJECT_MARKET_DISCOVERED` | Subject to listen for market discovery | `markets.discovered.v1` | `markets.discovered.v1` |
-| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN` | Pattern to subscribe to crypto prices | `prices.crypto.*.v1` | `prices.crypto.*.v1` |
-| `NATS_SUBJECT_TOKEN_PRICE_PATTERN` | Pattern to subscribe to token prices | `prices.bet-token.*.v1` | `prices.bet-token.*.v1` |
+| Variable                                     | Description                                                                   | Default                       | Example                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------- | ----------------------------- |
+| `REDIS_URL`                                  | Redis connection string                                                       | `redis://localhost:6379`      | `redis://localhost:6379`      |
+| `NATS_URL`                                   | NATS server URL                                                               | `nats://localhost:4222`       | `nats://localhost:4222`       |
+| `NATS_SUBJECT_MARKET_AGGREGATED_PRICE`       | Subject for aggregated market prices                                          | `market.prices.aggregated.v1` | `market.prices.aggregated.v1` |
+| `NATS_SUBJECT_MARKET_CREATED`                | Subject to listen for market creation                                         | `market.created.v1`           | `market.created.v1`           |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN_LISTENER` | Pattern to subscribe to crypto prices (NATS wildcard: `>` matches all levels) | `crypto.prices.>`             | `crypto.prices.>`             |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN_LISTENER`  | Pattern to subscribe to token prices (NATS wildcard: `>` matches all levels)  | `token.prices.>`              | `token.prices.>`              |
 
 ---
 
 ## NATS Topics
 
-| Subject | Direction | Message Type | Description |
-|---|---|---|---|
-| `prices.crypto.<asset>.v1` | Published | `CryptoPriceTick` | Live price tick for a tracked crypto asset (e.g. `prices.crypto.btc.v1`) |
-| `markets.created.v1` | Published | `MarketCreated` | A new prediction market was discovered |
-| `markets.discovered.v1` | Internal | `MarketDiscovered` | Internal signal used by the aggregator to track a new market |
-| `prices.bet-token.<market_slug>.v1` | Published | `TokenPriceTick` | Live UP/DOWN token price for an active market |
-| `market.prices.aggregated.v1` | Published | `MarketAggregatedPrice` | Aggregated snapshot: crypto price + UP/DOWN token prices (subject configurable via `NATS_SUBJECT_MARKET_AGGREGATED_PRICE`) |
+| Subject                         | Direction | Message Type            | Description                                                                                                                |
+| ------------------------------- | --------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `crypto.prices.<asset>.v1`      | Published | `CryptoPriceTick`       | Live price tick for a tracked crypto asset (e.g. `crypto.prices.btc.v1`)                                                   |
+| `market.created.v1`             | Published | `MarketCreated`         | A new prediction market was discovered                                                                                     |
+| `token.prices.<market_slug>.v1` | Published | `TokenPriceTick`        | Live UP/DOWN token price for an active market                                                                              |
+| `market.prices.aggregated.v1`   | Published | `MarketAggregatedPrice` | Aggregated snapshot: crypto price + UP/DOWN token prices (subject configurable via `NATS_SUBJECT_MARKET_AGGREGATED_PRICE`) |
 
 ---
 
@@ -105,7 +104,7 @@ syntax = "proto3";
 
 package ingestion;
 
-// Published to: prices.crypto.<asset>.v1
+// Published to: crypto.prices.<asset>.v1
 // Live cryptocurrency price tick from an exchange or data provider.
 message CryptoPriceTick {
   string source            = 1; // "binance" | "polymarket"
@@ -114,7 +113,7 @@ message CryptoPriceTick {
   int64  timestamp_unix_ms = 4;
 }
 
-// Published to: prices.bet-token.<market_slug>.v1
+// Published to: token.prices.<market_slug>.v1
 // Price tick for a single UP or DOWN prediction-market token.
 message TokenPriceTick {
   string source            = 1; // "polymarket"
@@ -126,7 +125,7 @@ message TokenPriceTick {
   int64  timestamp_unix_ms = 7;
 }
 
-// Published to: markets.created.v1
+// Published to: market.created.v1
 // Fired when a new prediction market is discovered.
 message MarketCreated {
   string source                = 1; // "polymarket"
@@ -142,24 +141,7 @@ message MarketCreated {
   bool   closed                = 11;
 }
 
-// Internal command used by market-price-aggregator to track/untrack markets.
-message MarketTrackCommand {
-  string action        = 1; // "UPSERT" | "REMOVE"
-  string market_id     = 2;
-  string up_token_id   = 3;
-  string down_token_id = 4;
-}
-
-// Internal signal published by token-ingestion; consumed by market-price-aggregator.
-message MarketDiscovered {
-  string market_id             = 1;
-  string crypto_symbol         = 2;
-  string up_token_id           = 3;
-  string down_token_id         = 4;
-  int64  discovered_at_unix_ms = 5;
-}
-
-// Published to: prices.market.<market_slug>.v1
+// Published to: market.prices.aggregated.v1
 // Aggregated snapshot combining the current crypto price with UP/DOWN token prices.
 message MarketAggregatedPrice {
   string market_id         = 1;
@@ -261,14 +243,28 @@ REDIS_URL=redis://localhost:6379 go run ./cmd/market-price-aggregator
 
 Copy `.env.example` to `.env` and adjust the values for your environment.
 
-| Variable | Default | Description |
-|---|---|---|
-| `NATS_URL` | `nats://localhost:4222` | NATS server connection URL |
-| `INGESTION_PLATFORM` | `polymarket` | Price feed platform (`binance` \| `polymarket`) |
-| `CRYPTO_SYMBOLS` | `btc:bitcoin:usdc,eth:ethereum:usdc` | Assets to track (`min:full:convert_to`) |
-| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS` | `10` | Market discovery poll interval (seconds) |
-| `TOKEN_MARKET_TYPES` | `5,15,60` | Bet-market timeframes to watch (minutes) |
-| `REDIS_URL` | `redis://localhost:6379` | Redis connection URL (aggregator) |
-| `WEBSOCKET_RETRY_INITIAL_DELAY` | `500ms` | Initial backoff delay for WebSocket reconnect |
-| `WEBSOCKET_RETRY_MAX_DELAY` | `20s` | Maximum backoff delay for WebSocket reconnect |
-| `HTTP_RETRY_MAX_ATTEMPTS` | `8` | Maximum HTTP retry attempts |
+| Variable                                     | Default                                                | Description                                      |
+| -------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ |
+| `NATS_URL`                                   | `nats://localhost:4222`                                | NATS server connection URL                       |
+| `INGESTION_PLATFORM`                         | `polymarket`                                           | Price feed platform (`binance` \| `polymarket`)  |
+| `CRYPTO_SYMBOLS`                             | `btc:bitcoin:usdc,eth:ethereum:usdc`                   | Assets to track (`min:full:convert_to`)          |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN`          | `crypto.prices.%s.v1`                                  | Subject pattern used by `crypto-ingestion`       |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN`           | `token.prices.%s.v1`                                   | Subject pattern used by `token-ingestion`        |
+| `NATS_SUBJECT_MARKET_CREATED`                | `market.created.v1`                                    | Subject for publishing/consuming `MarketCreated` |
+| `NATS_SUBJECT_MARKET_AGGREGATED_PRICE`       | `market.prices.aggregated.v1`                          | Subject used by `market-price-aggregator` output |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN_LISTENER`  | `token.prices.>`                                       | Subject pattern consumed by aggregator (tokens)  |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN_LISTENER` | `crypto.prices.>`                                      | Subject pattern consumed by aggregator (cryptos) |
+| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS`    | `10`                                                   | Market discovery poll interval (seconds)         |
+| `TOKEN_MARKET_TYPES`                         | `5,15,60`                                              | Bet-market timeframes to watch (minutes)         |
+| `REDIS_URL`                                  | `redis://localhost:6379`                               | Redis connection URL (aggregator)                |
+| `POLYMARKET_WS_URL`                          | `wss://ws-live-data.polymarket.com`                    | Polymarket crypto WebSocket URL                  |
+| `BINANCE_WS_URL`                             | `wss://fstream.binance.com/stream`                     | Binance WebSocket URL                            |
+| `POLYMARKET_MARKET_LOOKUP_URL`               | `https://gamma-api.polymarket.com/markets`             | Polymarket market discovery API URL              |
+| `POLYMARKET_MARKET_WS_URL`                   | `wss://ws-subscriptions-clob.polymarket.com/ws/market` | Polymarket token-price WebSocket URL             |
+| `WEBSOCKET_RETRY_INITIAL_DELAY`              | `500ms`                                                | Initial backoff delay for WebSocket reconnect    |
+| `WEBSOCKET_RETRY_MAX_DELAY`                  | `20s`                                                  | Maximum backoff delay for WebSocket reconnect    |
+| `WEBSOCKET_RETRY_MULTIPLIER`                 | `1.8`                                                  | Exponential factor for WebSocket backoff         |
+| `HTTP_RETRY_MAX_ATTEMPTS`                    | `8`                                                    | Maximum HTTP retry attempts                      |
+| `HTTP_RETRY_INITIAL_DELAY`                   | `300ms`                                                | Initial HTTP retry delay                         |
+| `HTTP_RETRY_MAX_DELAY`                       | `6s`                                                   | Maximum HTTP retry delay                         |
+| `HTTP_RETRY_MULTIPLIER`                      | `1.8`                                                  | Exponential factor for HTTP retry backoff        |

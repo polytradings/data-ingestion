@@ -44,17 +44,29 @@ func main() {
 	// Create aggregator
 	aggregator := services.NewMarketPriceAggregator(redisConn, pubChan)
 
-	// Create listeners
-	marketDiscoveredListener := market_price_aggregator.NewMarketDiscoveredListener(nc, aggregator)
-	cryptoPriceListener := market_price_aggregator.NewCryptoPriceListener(nc, aggregator)
-	tokenPriceListener := market_price_aggregator.NewTokenPriceListener(nc, aggregator)
+	// Create listeners with configured subjects
+	marketCreatedListener := market_price_aggregator.NewMarketCreatedListener(
+		nc,
+		aggregator,
+		cfg.NATSMarketCreatedSubject,
+	)
+	cryptoPriceListener := market_price_aggregator.NewCryptoPriceListener(
+		nc,
+		aggregator,
+		cfg.NATSCryptoPriceSubjectPattern,
+	)
+	tokenPriceListener := market_price_aggregator.NewTokenPriceListener(
+		nc,
+		aggregator,
+		cfg.NATSTokenPriceSubjectPattern,
+	)
 
 	// Start listeners
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := marketDiscoveredListener.Start(ctx); err != nil {
-		log.Fatalf("error starting market discovered listener: %v", err)
+	if err := marketCreatedListener.Start(ctx); err != nil {
+		log.Fatalf("error starting market created listener: %v", err)
 	}
 
 	if err := cryptoPriceListener.Start(ctx); err != nil {

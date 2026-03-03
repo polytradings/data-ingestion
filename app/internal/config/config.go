@@ -11,11 +11,11 @@ import (
 )
 
 type CryptoIngestionConfig struct {
-	NATSURL                   string
-	NATSCryptoSubjectTemplate string
-	Platform                  string
-	Cryptos                   []domain.Crypto
-	Symbols                   []string
+	NATSURL                  string
+	NATSCryptoSubjectPattern string
+	Platform                 string
+	Cryptos                  []domain.Crypto
+	Symbols                  []string
 
 	BinanceWSURL string
 
@@ -28,7 +28,7 @@ type CryptoIngestionConfig struct {
 
 type TokenIngestionConfig struct {
 	NATSURL                  string
-	NATSTokenSubjectTemplate string
+	NATSTokenSubjectPattern  string
 	NATSMarketCreatedSubject string
 
 	MarketDiscoverInterval time.Duration
@@ -50,12 +50,12 @@ type TokenIngestionConfig struct {
 }
 
 type MarketPriceAggregatorConfig struct {
-	NATSURL                             string
-	NATSMarketAggregatedPriceSubject    string
-	NATSMarketDiscoveredSubject         string
-	NATSCryptoPriceSubjectPattern       string
-	NATSTokenPriceSubjectPattern        string
-	RedisURL                            string
+	NATSURL                          string
+	NATSMarketAggregatedPriceSubject string
+	NATSMarketCreatedSubject         string
+	NATSCryptoPriceSubjectPattern    string
+	NATSTokenPriceSubjectPattern     string
+	RedisURL                         string
 }
 
 func LoadCryptoIngestionConfig() (CryptoIngestionConfig, error) {
@@ -69,13 +69,13 @@ func LoadCryptoIngestionConfig() (CryptoIngestionConfig, error) {
 	symbols := tradingSymbolsFromCryptos(cryptos, platform)
 
 	cfg := CryptoIngestionConfig{
-		NATSURL:                   getOrDefault("NATS_URL", "nats://localhost:4222"),
-		NATSCryptoSubjectTemplate: getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_TEMPLATE", "prices.crypto.%s.v1"),
-		Platform:                  platform,
-		Cryptos:                   cryptos,
-		Symbols:                   symbols,
-		BinanceWSURL:              getOrDefault("BINANCE_WS_URL", "wss://fstream.binance.com/stream"),
-		PolymarketWSURL:           getOrDefault("POLYMARKET_WS_URL", "wss://ws-live-data.polymarket.com"),
+		NATSURL:                  getOrDefault("NATS_URL", "nats://localhost:4222"),
+		NATSCryptoSubjectPattern: getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN", "crypto.prices.%s.v1"),
+		Platform:                 platform,
+		Cryptos:                  cryptos,
+		Symbols:                  symbols,
+		BinanceWSURL:             getOrDefault("BINANCE_WS_URL", "wss://fstream.binance.com/stream"),
+		PolymarketWSURL:          getOrDefault("POLYMARKET_WS_URL", "wss://ws-live-data.polymarket.com"),
 
 		WebSocketRetryInitialDelay: getDurationOrDefault("WEBSOCKET_RETRY_INITIAL_DELAY", 1*time.Second),
 		WebSocketRetryMaxDelay:     getDurationOrDefault("WEBSOCKET_RETRY_MAX_DELAY", 30*time.Second),
@@ -118,8 +118,8 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 
 	cfg := TokenIngestionConfig{
 		NATSURL:                  getOrDefault("NATS_URL", "nats://localhost:4222"),
-		NATSTokenSubjectTemplate: getOrDefault("NATS_SUBJECT_BET_TOKEN_PRICE_TEMPLATE", "prices.bet-token.%s.v1"),
-		NATSMarketCreatedSubject: getOrDefault("NATS_SUBJECT_MARKET_CREATED", "markets.created.v1"),
+		NATSTokenSubjectPattern:  getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN", "token.prices.%s.v1"),
+		NATSMarketCreatedSubject: getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
 		MarketDiscoverInterval:   time.Duration(discoverySeconds) * time.Second,
 		PolymarketMarketLookupURL: getOrDefault(
 			"POLYMARKET_MARKET_LOOKUP_URL",
@@ -169,9 +169,9 @@ func LoadMarketPriceAggregatorConfig() (MarketPriceAggregatorConfig, error) {
 	cfg := MarketPriceAggregatorConfig{
 		NATSURL:                          getOrDefault("NATS_URL", "nats://localhost:4222"),
 		NATSMarketAggregatedPriceSubject: getOrDefault("NATS_SUBJECT_MARKET_AGGREGATED_PRICE", "market.prices.aggregated.v1"),
-		NATSMarketDiscoveredSubject:      getOrDefault("NATS_SUBJECT_MARKET_DISCOVERED", "markets.discovered.v1"),
-		NATSCryptoPriceSubjectPattern:    getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN", "prices.crypto.*.v1"),
-		NATSTokenPriceSubjectPattern:     getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN", "prices.bet-token.*.v1"),
+		NATSMarketCreatedSubject:         getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
+		NATSCryptoPriceSubjectPattern:    getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN_LISTENER", "crypto.prices.>"),
+		NATSTokenPriceSubjectPattern:     getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN_LISTENER", "token.prices.>"),
 		RedisURL:                         getOrDefault("REDIS_URL", "redis://localhost:6379"),
 	}
 

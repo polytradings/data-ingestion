@@ -12,16 +12,16 @@ import (
 )
 
 type StreamCryptoPricesUseCase struct {
-	feed            ports.CryptoPriceFeed
-	publisher       ports.MessagePublisher
-	subjectTemplate string
+	feed           ports.CryptoPriceFeed
+	publisher      ports.MessagePublisher
+	subjectPattern string
 }
 
-func NewStreamCryptoPricesUseCase(feed ports.CryptoPriceFeed, publisher ports.MessagePublisher, subjectTemplate string) *StreamCryptoPricesUseCase {
+func NewStreamCryptoPricesUseCase(feed ports.CryptoPriceFeed, publisher ports.MessagePublisher, subjectPattern string) *StreamCryptoPricesUseCase {
 	return &StreamCryptoPricesUseCase{
-		feed:            feed,
-		publisher:       publisher,
-		subjectTemplate: subjectTemplate,
+		feed:           feed,
+		publisher:      publisher,
+		subjectPattern: subjectPattern,
 	}
 }
 
@@ -45,7 +45,7 @@ func (u *StreamCryptoPricesUseCase) Execute(ctx context.Context, symbols []strin
 				continue
 			}
 			topicAsset := topicAssetFromSymbol(tick.Symbol)
-			subject := fmt.Sprintf(u.subjectTemplate, topicAsset)
+			subject := fmt.Sprintf(u.subjectPattern, topicAsset)
 			if err := u.publisher.PublishCryptoPriceTick(ctx, subject, toProtoTick(tick)); err != nil {
 				return fmt.Errorf("publish price tick: %w", err)
 			}
