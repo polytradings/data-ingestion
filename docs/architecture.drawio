@@ -157,7 +157,7 @@
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-49" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-48" style="edgeLabel;html=1;align=right;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="crypto.prices.&amp;lt;asset&amp;gt;.v1" vertex="1">
           <mxGeometry relative="1" x="0.6708" y="-1" as="geometry">
-            <mxPoint x="1" y="-92" as="offset" />
+            <mxPoint x="-31" y="-96" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 1: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: binance)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes CryptoPriceTick&lt;/div&gt;" vertex="1">
@@ -185,14 +185,14 @@
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-55" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-54" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;token.&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;prices.&amp;lt;slug&amp;gt;.v1&lt;/span&gt;&lt;/div&gt;&lt;div&gt;market.created.v1&lt;/div&gt;" vertex="1">
           <mxGeometry relative="1" x="0.6059" y="2" as="geometry">
-            <mxPoint x="-2" y="-83" as="offset" />
+            <mxPoint x="22" y="-87" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-56" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 3: token-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Discovers active markets&amp;nbsp;(5m / 15m / 60m)&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Publishes MarketCreated&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Streams UP/DOWN token&amp;nbsp;prices via WebSocket (&lt;span style=&quot;text-align: justify;&quot;&gt;TokenPriceTick&lt;/span&gt;)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="100" width="280" x="610" y="310" as="geometry" />
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;crypto.prices.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.created.v1&lt;/td&gt;&lt;td&gt;MarketCreated&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;token.prices.&amp;lt;market_slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.prices.aggregated.v1&lt;/td&gt;&lt;td&gt;MarketAggregatedPrice&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="130" width="410" x="255" y="490" as="geometry" />
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;crypto.prices.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.created.v1&lt;/td&gt;&lt;td&gt;MarketCreated&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;token.prices.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.prices.aggregated.v1&lt;/td&gt;&lt;td&gt;MarketAggregatedPrice&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="330" x="295" y="490" as="geometry" />
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-58" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
           <mxGeometry relative="1" as="geometry" />
