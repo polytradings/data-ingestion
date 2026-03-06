@@ -165,19 +165,6 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 	return cfg, nil
 }
 
-func LoadMarketPriceAggregatorConfig() (MarketPriceAggregatorConfig, error) {
-	cfg := MarketPriceAggregatorConfig{
-		NATSURL:                          getOrDefault("NATS_URL", "nats://localhost:4222"),
-		NATSMarketAggregatedPriceSubject: getOrDefault("NATS_SUBJECT_MARKET_AGGREGATED_PRICE", "market.prices.aggregated.v1"),
-		NATSMarketCreatedSubject:         getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
-		NATSCryptoPriceSubjectPattern:    getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN_LISTENER", "crypto.prices.>"),
-		NATSTokenPriceSubjectPattern:     getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN_LISTENER", "token.prices.>"),
-		RedisURL:                         getOrDefault("REDIS_URL", "redis://localhost:6379"),
-	}
-
-	return cfg, nil
-}
-
 func getOrDefault(key, fallback string) string {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {

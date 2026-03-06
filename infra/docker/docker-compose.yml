@@ -14,34 +14,6 @@ services:
       timeout: 3s
       retries: 5
 
-  nats-cli:
-    image: natsio/nats-box
-    container_name: nats-cli
-    environment:
-      - NATS_URL=nats://nats:4222
-    command: ["sleep", "infinity"]
-    depends_on:
-      nats:
-        condition: service_healthy
-    networks:
-      - nats-net
-    volumes:
-      - ../../app/internal/proto:/proto
-
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - nats-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    restart: unless-stopped
-
   crypto-ingestion-binance:
     container_name: crypto-ingestion-binance
     build:
@@ -95,28 +67,6 @@ services:
       - ../../.env
     depends_on:
       nats:
-        condition: service_healthy
-    networks:
-      - nats-net
-    restart: unless-stopped
-
-  market-price-aggregator:
-    container_name: market-price-aggregator
-    build:
-      context: ../../app
-      dockerfile: Dockerfile
-      args:
-        SERVICE: market-price-aggregator
-        TARGETOS: ${TARGETOS:-linux}
-        TARGETARCH: ${TARGETARCH:-}
-    env_file:
-      - ../../.env
-    environment:
-      REDIS_URL: redis://redis:6379
-    depends_on:
-      nats:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - nats-net
