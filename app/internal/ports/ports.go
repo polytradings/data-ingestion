@@ -23,8 +23,13 @@ type MessagePublisher interface {
 	PublishCryptoPriceTick(ctx context.Context, subject string, tick *proto.CryptoPriceTick) error
 	PublishTokenPriceTick(ctx context.Context, subject string, tick *proto.TokenPriceTick) error
 	PublishMarketInfo(ctx context.Context, subject string, market *proto.MarketInfo) error
+	PublishPriceToBeat(ctx context.Context, subject string, payload *proto.PriceToBeat) error
 }
 
 type MarketEventConsumer interface {
 	SubscribeMarketInfo(ctx context.Context, subject string) (<-chan *proto.MarketInfo, error)
+}
+
+type CryptoPriceConsumer interface {
+	SubscribeCryptoPriceTick(ctx context.Context, subject string) (<-chan *proto.CryptoPriceTick, error)
 }

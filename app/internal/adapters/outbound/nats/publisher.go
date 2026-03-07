@@ -40,6 +40,14 @@ func (p *ProtoPublisher) PublishMarketInfo(ctx context.Context, subject string, 
 	return p.publishPayload(subject, payload)
 }
 
+func (p *ProtoPublisher) PublishPriceToBeat(ctx context.Context, subject string, payloadMsg *proto.PriceToBeat) error {
+	payload, err := proto.MarshalPriceToBeat(payloadMsg)
+	if err != nil {
+		return fmt.Errorf("marshal protobuf: %w", err)
+	}
+	return p.publishPayload(subject, payload)
+}
+
 func (p *ProtoPublisher) publishPayload(subject string, payload []byte) error {
 	msg := &nats.Msg{Subject: subject, Data: payload}
 	if err := p.nc.PublishMsg(msg); err != nil {

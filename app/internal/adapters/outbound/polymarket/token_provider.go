@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -26,11 +25,7 @@ func NewPolymarketTokenProvider(marketLookupAPIURL string, httpBackoff retry.Bac
 		lookupURL = "https://gamma-api.polymarket.com/markets"
 	}
 	if httpBackoff.InitialDelay <= 0 || httpBackoff.MaxDelay <= 0 || httpBackoff.Multiplier <= 1 {
-		httpBackoff = retry.Backoff{
-			InitialDelay: 500 * time.Millisecond,
-			MaxDelay:     5 * time.Second,
-			Multiplier:   2,
-		}
+		httpBackoff = retry.Backoff{InitialDelay: 500 * time.Millisecond, MaxDelay: 5 * time.Second, Multiplier: 2}
 	}
 	if httpMaxAttempts <= 0 {
 		httpMaxAttempts = 5
@@ -47,7 +42,7 @@ func NewPolymarketTokenProvider(marketLookupAPIURL string, httpBackoff retry.Bac
 func (p *PolymarketTokenProvider) LookupMarketBySlug(ctx context.Context, slug string) (domain.ActiveMarket, bool, error) {
 	url := fmt.Sprintf("%s?slug=%s", p.marketLookupAPIURL, slug)
 
-	resp, err := p.doWithRetry(ctx, http.MethodGet, url)
+	resp, err := doRequestWithRetry(ctx, p.httpClient, p.httpBackoff, p.httpMaxAttempts, http.MethodGet, url)
 	if err != nil {
 		return domain.ActiveMarket{}, false, err
 	}
@@ -80,45 +75,6 @@ func (p *PolymarketTokenProvider) LookupMarketBySlug(ctx context.Context, slug s
 		DownTokenID: tokenAt(tokenIDs, 1),
 		Closed:      closed,
 	}, true, nil
-}
-
-func (p *PolymarketTokenProvider) doWithRetry(ctx context.Context, method, url string) (*http.Response, error) {
-	var lastErr error
-
-	for attempt := 1; attempt <= p.httpMaxAttempts; attempt++ {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-
-		req, err := http.NewRequestWithContext(ctx, method, url, nil)
-		if err != nil {
-			return nil, fmt.Errorf("create request: %w", err)
-		}
-
-		resp, err := p.httpClient.Do(req)
-		if err == nil {
-			if retry.IsRetriableHTTPStatus(resp.StatusCode) {
-				lastErr = fmt.Errorf("unexpected retriable status: %d", resp.StatusCode)
-				_ = resp.Body.Close()
-			} else {
-				return resp, nil
-			}
-		} else {
-			lastErr = fmt.Errorf("request failed: %w", err)
-		}
-
-		if attempt == p.httpMaxAttempts {
-			break
-		}
-
-		delay := p.httpBackoff.Duration(attempt)
-		log.Printf("polymarket lookup attempt=%d failed err=%v retry_in=%s", attempt, lastErr, delay)
-		if err := retry.Wait(ctx, delay); err != nil {
-			return nil, err
-		}
-	}
-
-	return nil, retry.ExhaustedError("request", p.httpMaxAttempts, lastErr)
 }
 
 func readString(body map[string]any, keys ...string) string {

@@ -42,3 +42,19 @@ type MarketInfo struct {
 }
 
 func (m *MarketInfo) String() string { return fmt.Sprintf("%+v", *m) }
+
+type PriceToBeat struct {
+	Source           string  `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
+	MarketId         string  `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	ConditionId      string  `protobuf:"bytes,3,opt,name=condition_id,json=conditionId,proto3" json:"condition_id,omitempty"`
+	CryptoSymbol     string  `protobuf:"bytes,4,opt,name=crypto_symbol,json=cryptoSymbol,proto3" json:"crypto_symbol,omitempty"`
+	TimeframeMinutes int32   `protobuf:"varint,5,opt,name=timeframe_minutes,json=timeframeMinutes,proto3" json:"timeframe_minutes,omitempty"`
+	PriceToBeat      float64 `protobuf:"fixed64,6,opt,name=price_to_beat,json=priceToBeat,proto3" json:"price_to_beat,omitempty"`
+	Method           string  `protobuf:"bytes,7,opt,name=method,proto3" json:"method,omitempty"`
+	Confidence       float64 `protobuf:"fixed64,8,opt,name=confidence,proto3" json:"confidence,omitempty"`
+	ComputedAtUnixMs int64   `protobuf:"varint,9,opt,name=computed_at_unix_ms,json=computedAtUnixMs,proto3" json:"computed_at_unix_ms,omitempty"`
+	Revision         int32   `protobuf:"varint,10,opt,name=revision,proto3" json:"revision,omitempty"`
+	Finalized        bool    `protobuf:"varint,11,opt,name=finalized,proto3" json:"finalized,omitempty"`
+}
+
+func (m *PriceToBeat) String() string { return fmt.Sprintf("%+v", *m) }
