@@ -19,7 +19,7 @@ message TokenPriceTick {
   int64 timestamp_unix_ms = 7;
 }
 
-message MarketCreated {
+message MarketInfo {
   string source = 1;
   string market_id = 2;
   string condition_id = 3;

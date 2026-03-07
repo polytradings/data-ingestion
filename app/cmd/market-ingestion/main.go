@@ -17,7 +17,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	cfg, err := config.LoadTokenIngestionConfig()
+	cfg, err := config.LoadMarketIngestionConfig()
 	if err != nil {
 		log.Fatalf("config error: %v", err)
 	}
@@ -29,29 +29,30 @@ func main() {
 	defer nc.Close()
 
 	publisher := natsadapter.NewProtoPublisher(nc)
-	subscriber := natsadapter.NewProtoSubscriber(nc)
-	wsBackoff := retry.Backoff{
-		InitialDelay: cfg.WebSocketRetryInitialDelay,
-		MaxDelay:     cfg.WebSocketRetryMaxDelay,
-		Multiplier:   cfg.WebSocketRetryMultiplier,
+	httpBackoff := retry.Backoff{
+		InitialDelay: cfg.HTTPRetryInitialDelay,
+		MaxDelay:     cfg.HTTPRetryMaxDelay,
+		Multiplier:   cfg.HTTPRetryMultiplier,
 	}
-	feed := polymarket.NewMarketFeed(cfg.PolymarketMarketWSURL, wsBackoff)
+	provider := polymarket.NewPolymarketTokenProvider(cfg.PolymarketMarketLookupURL, httpBackoff, cfg.HTTPRetryMaxAttempts)
 
-	uc := application.NewWatchTokenPricesUseCase(
-		subscriber,
-		feed,
+	uc := application.NewDiscoverMarketsUseCase(
+		provider,
 		publisher,
-		cfg.NATSTokenSubjectPattern,
+		cfg.Cryptos,
+		cfg.MarketTypes,
 		cfg.NATSMarketCreatedSubject,
 		cfg.NATSMarketExpiredSubject,
+		cfg.MarketDiscoverInterval,
 	)
 
 	log.Printf(
-		"token-ingestion started market_created_subject=%s market_expired_subject=%s",
-		cfg.NATSMarketCreatedSubject,
-		cfg.NATSMarketExpiredSubject,
+		"market-ingestion started cryptos=%d market_types=%v discover_interval=%s",
+		len(cfg.Cryptos),
+		cfg.MarketTypes,
+		cfg.MarketDiscoverInterval,
 	)
 	if err := uc.Execute(ctx); err != nil {
-		log.Fatalf("token-ingestion stopped with error: %v", err)
+		log.Fatalf("market-ingestion stopped with error: %v", err)
 	}
 }

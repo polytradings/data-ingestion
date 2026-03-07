@@ -72,6 +72,24 @@ services:
       - nats-net
     restart: unless-stopped
 
+  market-ingestion:
+    container_name: market-ingestion
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: market-ingestion
+        TARGETOS: ${TARGETOS:-linux}
+        TARGETARCH: ${TARGETARCH:-}
+    env_file:
+      - ../../.env
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
 networks:
   nats-net:
     driver: bridge

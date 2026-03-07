@@ -27,7 +27,7 @@ type TokenPriceTick struct {
 
 func (m *TokenPriceTick) String() string { return fmt.Sprintf("%+v", *m) }
 
-type MarketCreated struct {
+type MarketInfo struct {
 	Source             string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
 	MarketId           string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	ConditionId        string `protobuf:"bytes,3,opt,name=condition_id,json=conditionId,proto3" json:"condition_id,omitempty"`
@@ -41,4 +41,4 @@ type MarketCreated struct {
 	Closed             bool   `protobuf:"varint,11,opt,name=closed,proto3" json:"closed,omitempty"`
 }
 
-func (m *MarketCreated) String() string { return fmt.Sprintf("%+v", *m) }
+func (m *MarketInfo) String() string { return fmt.Sprintf("%+v", *m) }
