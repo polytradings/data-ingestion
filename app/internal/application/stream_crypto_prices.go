@@ -44,6 +44,12 @@ func (u *StreamCryptoPricesUseCase) Execute(ctx context.Context, symbols []strin
 			if !shouldPublishCryptoTick(tick) {
 				continue
 			}
+			normalizedSymbol := normalizeCryptoSymbol(tick.Symbol)
+			if normalizedSymbol == "" {
+				continue
+			}
+			tick.Symbol = normalizedSymbol
+
 			topicAsset := topicAssetFromSymbol(tick.Symbol)
 			subject := fmt.Sprintf(u.subjectPattern, topicAsset)
 			if err := u.publisher.PublishCryptoPriceTick(ctx, subject, toProtoTick(tick)); err != nil {
@@ -64,8 +70,21 @@ func toProtoTick(tick domain.PriceTick) *proto.CryptoPriceTick {
 }
 
 func topicAssetFromSymbol(symbol string) string {
-	value := strings.ToLower(strings.TrimSpace(symbol))
-	for _, suffix := range []string{"usdt", "usdc", "usd", "perp"} {
+	value := strings.ToLower(normalizeCryptoSymbol(symbol))
+	return value
+}
+
+func normalizeCryptoSymbol(symbol string) string {
+	value := strings.ToUpper(strings.TrimSpace(symbol))
+	if value == "" {
+		return ""
+	}
+
+	if idx := strings.Index(value, "/"); idx > 0 {
+		return strings.TrimSpace(value[:idx])
+	}
+
+	for _, suffix := range []string{"USDT", "USDC", "USD", "PERP"} {
 		if strings.HasSuffix(value, suffix) && len(value) > len(suffix) {
 			return value[:len(value)-len(suffix)]
 		}
