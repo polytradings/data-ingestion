@@ -287,3 +287,9 @@ Copy `.env.example` to `.env` and adjust the values for your environment.
 | `HTTP_RETRY_INITIAL_DELAY`          | `300ms`                                                | Initial HTTP retry delay                          |
 | `HTTP_RETRY_MAX_DELAY`              | `6s`                                                   | Maximum HTTP retry delay                          |
 | `HTTP_RETRY_MULTIPLIER`             | `1.8`                                                  | Exponential factor for HTTP retry backoff         |
+| `NATS_SUBJECT_PRICE_TO_BEAT_PATTERN`| `price-to-beat.%s.v1`                                  | Subject pattern used by `price-to-beat-ingestion` |
+| `POLYMARKET_PRICE_TO_BEAT_BOOTSTRAP_URL` | `https://gamma-api.polymarket.com/markets`        | External bootstrap/finalization API URL           |
+| `PRICE_TO_BEAT_JETSTREAM_BUCKET`    | `price_to_beat`                                        | JetStream KV bucket for persisted state           |
+| `PRICE_TO_BEAT_RECONCILE_DELAY`     | `2m`                                                   | Delay after market expiry before final lookup     |
+| `PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS` | `1`                                                  | Min delta (BPS) required to publish a revision    |
+| `PRICE_TO_BEAT_OPEN_GRACE_PERIOD`   | `20s`                                                  | Grace period after market open before first publish |

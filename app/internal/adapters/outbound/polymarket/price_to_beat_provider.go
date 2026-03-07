@@ -40,7 +40,7 @@ func NewPriceToBeatProvider(bootstrapAPIURL string, httpBackoff retry.Backoff, h
 
 func (p *PriceToBeatProvider) LookupReferencePrice(ctx context.Context, marketID string) (float64, bool, error) {
 	url := fmt.Sprintf("%s?slug=%s", p.bootstrapAPIURL, marketID)
-	resp, err := doRequestWithRetry(ctx, p.httpClient, p.httpBackoff, p.httpMaxAttempts, http.MethodGet, url)
+	resp, err := retry.DoHTTPRequestWithRetry(ctx, p.httpClient, p.httpBackoff, p.httpMaxAttempts, http.MethodGet, url)
 	if err != nil {
 		return 0, false, err
 	}

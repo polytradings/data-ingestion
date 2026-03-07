@@ -42,7 +42,7 @@ func NewPolymarketTokenProvider(marketLookupAPIURL string, httpBackoff retry.Bac
 func (p *PolymarketTokenProvider) LookupMarketBySlug(ctx context.Context, slug string) (domain.ActiveMarket, bool, error) {
 	url := fmt.Sprintf("%s?slug=%s", p.marketLookupAPIURL, slug)
 
-	resp, err := doRequestWithRetry(ctx, p.httpClient, p.httpBackoff, p.httpMaxAttempts, http.MethodGet, url)
+	resp, err := retry.DoHTTPRequestWithRetry(ctx, p.httpClient, p.httpBackoff, p.httpMaxAttempts, http.MethodGet, url)
 	if err != nil {
 		return domain.ActiveMarket{}, false, err
 	}
