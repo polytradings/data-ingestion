@@ -181,7 +181,7 @@ func UnmarshalTokenPriceTick(data []byte, m *TokenPriceTick) error {
 	return nil
 }
 
-func MarshalMarketCreated(m *MarketCreated) ([]byte, error) {
+func MarshalMarketInfo(m *MarketInfo) ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -233,7 +233,7 @@ func MarshalMarketCreated(m *MarketCreated) ([]byte, error) {
 	return b, nil
 }
 
-func UnmarshalMarketCreated(data []byte, m *MarketCreated) error {
+func UnmarshalMarketInfo(data []byte, m *MarketInfo) error {
 	for len(data) > 0 {
 		num, typ, n := protowire.ConsumeTag(data)
 		if n < 0 {

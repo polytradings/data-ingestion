@@ -30,15 +30,23 @@ type TokenIngestionConfig struct {
 	NATSURL                  string
 	NATSTokenSubjectPattern  string
 	NATSMarketCreatedSubject string
+	NATSMarketExpiredSubject string
 
-	MarketDiscoverInterval time.Duration
-
-	PolymarketMarketLookupURL string
-	PolymarketMarketWSURL     string
+	PolymarketMarketWSURL string
 
 	WebSocketRetryInitialDelay time.Duration
 	WebSocketRetryMaxDelay     time.Duration
 	WebSocketRetryMultiplier   float64
+}
+
+type MarketIngestionConfig struct {
+	NATSURL                  string
+	NATSMarketCreatedSubject string
+	NATSMarketExpiredSubject string
+
+	MarketDiscoverInterval time.Duration
+
+	PolymarketMarketLookupURL string
 
 	HTTPRetryMaxAttempts  int
 	HTTPRetryInitialDelay time.Duration
@@ -101,30 +109,11 @@ func LoadCryptoIngestionConfig() (CryptoIngestionConfig, error) {
 }
 
 func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
-	discoverySeconds, err := strconv.Atoi(getOrDefault("TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS", "10"))
-	if err != nil || discoverySeconds <= 0 {
-		return TokenIngestionConfig{}, fmt.Errorf("TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS must be a positive integer")
-	}
-
-	marketTypes, err := parseMarketTypes(getOrDefault("TOKEN_MARKET_TYPES", "5,15,60"))
-	if err != nil {
-		return TokenIngestionConfig{}, err
-	}
-
-	cryptos, err := parseCryptos(getOrDefault("CRYPTO_SYMBOLS", "btc:bitcoin:usdc,eth:ethereum:usdc"))
-	if err != nil {
-		return TokenIngestionConfig{}, fmt.Errorf("CRYPTO_SYMBOLS invalid: %w", err)
-	}
-
 	cfg := TokenIngestionConfig{
 		NATSURL:                  getOrDefault("NATS_URL", "nats://localhost:4222"),
 		NATSTokenSubjectPattern:  getOrDefault("NATS_SUBJECT_TOKEN_PRICE_PATTERN", "token.prices.%s.v1"),
 		NATSMarketCreatedSubject: getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
-		MarketDiscoverInterval:   time.Duration(discoverySeconds) * time.Second,
-		PolymarketMarketLookupURL: getOrDefault(
-			"POLYMARKET_MARKET_LOOKUP_URL",
-			"https://gamma-api.polymarket.com/markets",
-		),
+		NATSMarketExpiredSubject: getOrDefault("NATS_SUBJECT_MARKET_EXPIRED", "market.expired.v1"),
 		PolymarketMarketWSURL: getOrDefault(
 			"POLYMARKET_MARKET_WS_URL",
 			"wss://ws-subscriptions-clob.polymarket.com/ws/market",
@@ -132,14 +121,6 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 		WebSocketRetryInitialDelay: getDurationOrDefault("WEBSOCKET_RETRY_INITIAL_DELAY", 1*time.Second),
 		WebSocketRetryMaxDelay:     getDurationOrDefault("WEBSOCKET_RETRY_MAX_DELAY", 30*time.Second),
 		WebSocketRetryMultiplier:   getFloatOrDefault("WEBSOCKET_RETRY_MULTIPLIER", 2),
-
-		HTTPRetryMaxAttempts:  getIntOrDefault("HTTP_RETRY_MAX_ATTEMPTS", 5),
-		HTTPRetryInitialDelay: getDurationOrDefault("HTTP_RETRY_INITIAL_DELAY", 500*time.Millisecond),
-		HTTPRetryMaxDelay:     getDurationOrDefault("HTTP_RETRY_MAX_DELAY", 5*time.Second),
-		HTTPRetryMultiplier:   getFloatOrDefault("HTTP_RETRY_MULTIPLIER", 2),
-
-		Cryptos:     cryptos,
-		MarketTypes: marketTypes,
 	}
 
 	if err := validateRetryConfig(
@@ -150,6 +131,43 @@ func LoadTokenIngestionConfig() (TokenIngestionConfig, error) {
 	); err != nil {
 		return cfg, err
 	}
+
+	return cfg, nil
+}
+
+func LoadMarketIngestionConfig() (MarketIngestionConfig, error) {
+	discoverySeconds, err := strconv.Atoi(getOrDefault("MARKET_DISCOVERY_INTERVAL_SECONDS", "10"))
+	if err != nil || discoverySeconds <= 0 {
+		return MarketIngestionConfig{}, fmt.Errorf("MARKET_DISCOVERY_INTERVAL_SECONDS must be a positive integer")
+	}
+
+	marketTypes, err := parseMarketTypes(getOrDefault("TOKEN_MARKET_TYPES", "5,15,60"))
+	if err != nil {
+		return MarketIngestionConfig{}, err
+	}
+
+	cryptos, err := parseCryptos(getOrDefault("CRYPTO_SYMBOLS", "btc:bitcoin:usdc,eth:ethereum:usdc"))
+	if err != nil {
+		return MarketIngestionConfig{}, fmt.Errorf("CRYPTO_SYMBOLS invalid: %w", err)
+	}
+
+	cfg := MarketIngestionConfig{
+		NATSURL:                  getOrDefault("NATS_URL", "nats://localhost:4222"),
+		NATSMarketCreatedSubject: getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
+		NATSMarketExpiredSubject: getOrDefault("NATS_SUBJECT_MARKET_EXPIRED", "market.expired.v1"),
+		MarketDiscoverInterval:   time.Duration(discoverySeconds) * time.Second,
+		PolymarketMarketLookupURL: getOrDefault(
+			"POLYMARKET_MARKET_LOOKUP_URL",
+			"https://gamma-api.polymarket.com/markets",
+		),
+		HTTPRetryMaxAttempts:  getIntOrDefault("HTTP_RETRY_MAX_ATTEMPTS", 5),
+		HTTPRetryInitialDelay: getDurationOrDefault("HTTP_RETRY_INITIAL_DELAY", 500*time.Millisecond),
+		HTTPRetryMaxDelay:     getDurationOrDefault("HTTP_RETRY_MAX_DELAY", 5*time.Second),
+		HTTPRetryMultiplier:   getFloatOrDefault("HTTP_RETRY_MULTIPLIER", 2),
+		Cryptos:               cryptos,
+		MarketTypes:           marketTypes,
+	}
+
 	if cfg.HTTPRetryMaxAttempts <= 0 {
 		return cfg, fmt.Errorf("HTTP_RETRY_MAX_ATTEMPTS must be positive")
 	}

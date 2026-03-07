@@ -22,5 +22,9 @@ type TokenMarketFeed interface {
 type MessagePublisher interface {
 	PublishCryptoPriceTick(ctx context.Context, subject string, tick *proto.CryptoPriceTick) error
 	PublishTokenPriceTick(ctx context.Context, subject string, tick *proto.TokenPriceTick) error
-	PublishMarketCreated(ctx context.Context, subject string, market *proto.MarketCreated) error
+	PublishMarketInfo(ctx context.Context, subject string, market *proto.MarketInfo) error
+}
+
+type MarketEventConsumer interface {
+	SubscribeMarketInfo(ctx context.Context, subject string) (<-chan *proto.MarketInfo, error)
 }

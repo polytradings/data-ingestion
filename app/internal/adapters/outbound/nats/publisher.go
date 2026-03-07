@@ -32,8 +32,8 @@ func (p *ProtoPublisher) PublishTokenPriceTick(ctx context.Context, subject stri
 	return p.publishPayload(subject, payload)
 }
 
-func (p *ProtoPublisher) PublishMarketCreated(ctx context.Context, subject string, market *proto.MarketCreated) error {
-	payload, err := proto.MarshalMarketCreated(market)
+func (p *ProtoPublisher) PublishMarketInfo(ctx context.Context, subject string, market *proto.MarketInfo) error {
+	payload, err := proto.MarshalMarketInfo(market)
 	if err != nil {
 		return fmt.Errorf("marshal protobuf: %w", err)
 	}

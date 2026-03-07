@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 	"time"
 
@@ -13,50 +12,34 @@ import (
 	"github.com/polytradings/data-ingestion/internal/proto"
 )
 
-type WatchMarketTokensUseCase struct {
-	marketProvider       ports.MarketCatalogProvider
+type WatchTokenPricesUseCase struct {
+	marketConsumer       ports.MarketEventConsumer
 	marketFeed           ports.TokenMarketFeed
 	publisher            ports.MessagePublisher
-	cryptos              []domain.Crypto
-	marketTypes          []domain.MarketType
 	tokenSubjectPattern  string
 	marketCreatedSubject string
-	discoverInterval     time.Duration
+	marketExpiredSubject string
 }
 
-func NewWatchMarketTokensUseCase(
-	marketProvider ports.MarketCatalogProvider,
+func NewWatchTokenPricesUseCase(
+	marketConsumer ports.MarketEventConsumer,
 	marketFeed ports.TokenMarketFeed,
 	publisher ports.MessagePublisher,
-	cryptos []domain.Crypto,
-	marketTypes []domain.MarketType,
 	tokenSubjectPattern string,
 	marketCreatedSubject string,
-	discoverInterval time.Duration,
-) *WatchMarketTokensUseCase {
-	return &WatchMarketTokensUseCase{
-		marketProvider:       marketProvider,
+	marketExpiredSubject string,
+) *WatchTokenPricesUseCase {
+	return &WatchTokenPricesUseCase{
+		marketConsumer:       marketConsumer,
 		marketFeed:           marketFeed,
 		publisher:            publisher,
-		cryptos:              cryptos,
-		marketTypes:          marketTypes,
 		tokenSubjectPattern:  tokenSubjectPattern,
 		marketCreatedSubject: marketCreatedSubject,
-		discoverInterval:     discoverInterval,
+		marketExpiredSubject: marketExpiredSubject,
 	}
 }
 
-type tokenBinding struct {
-	marketID string
-	side     string
-}
-
-func (u *WatchMarketTokensUseCase) Execute(ctx context.Context) error {
-	discoverTicker := time.NewTicker(u.discoverInterval)
-	defer discoverTicker.Stop()
-	expiryTicker := time.NewTicker(1 * time.Second)
-	defer expiryTicker.Stop()
-
+func (u *WatchTokenPricesUseCase) Execute(ctx context.Context) error {
 	activeMarkets := map[string]domain.ActiveMarket{}
 	tokenToBinding := map[string]tokenBinding{}
 	var streamCancel context.CancelFunc
@@ -92,55 +75,14 @@ func (u *WatchMarketTokensUseCase) Execute(ctx context.Context) error {
 		log.Printf("market feed subscribed token_count=%d", len(tokens))
 	}
 
-	discoverAndPrune := func(now time.Time) {
-		pruned := pruneExpiredMarkets(activeMarkets, now)
-		if pruned > 0 {
-			log.Printf("pruned expired markets count=%d", pruned)
-		}
-
-		for _, crypto := range u.cryptos {
-			for _, marketType := range u.marketTypes {
-				startTime, endTime := marketWindow(now, marketType)
-				if !now.Before(endTime) {
-					continue
-				}
-				slug := buildMarketSlug(crypto, marketType, startTime)
-				if _, ok := activeMarkets[slug]; ok {
-					continue
-				}
-
-				market, found, err := u.marketProvider.LookupMarketBySlug(ctx, slug)
-				if err != nil {
-					log.Printf("market lookup failed slug=%s: %v", slug, err)
-					continue
-				}
-				if !found || market.Closed {
-					continue
-				}
-
-				market.MarketID = slug
-				market.Crypto = crypto
-				market.TimeframeMinutes = marketType.Minutes()
-				market.StartTime = startTime
-				market.EndTime = endTime
-
-				if strings.TrimSpace(market.UpTokenID) == "" || strings.TrimSpace(market.DownTokenID) == "" {
-					log.Printf("market without both token ids ignored market=%s", slug)
-					continue
-				}
-
-				activeMarkets[slug] = market
-				if err := u.publishMarketCreated(ctx, market); err != nil {
-					log.Printf("market created publish failed market=%s: %v", slug, err)
-				}
-				log.Printf("market discovered market=%s condition=%s timeframe=%dm", slug, market.ConditionID, marketType.Minutes())
-			}
-		}
-
-		refreshFeed(false)
+	createdCh, err := u.marketConsumer.SubscribeMarketInfo(ctx, u.marketCreatedSubject)
+	if err != nil {
+		return fmt.Errorf("subscribe market created: %w", err)
 	}
-
-	discoverAndPrune(time.Now().UTC())
+	expiredCh, err := u.marketConsumer.SubscribeMarketInfo(ctx, u.marketExpiredSubject)
+	if err != nil {
+		return fmt.Errorf("subscribe market expired: %w", err)
+	}
 
 	for {
 		select {
@@ -149,12 +91,29 @@ func (u *WatchMarketTokensUseCase) Execute(ctx context.Context) error {
 				streamCancel()
 			}
 			return nil
-		case <-discoverTicker.C:
-			discoverAndPrune(time.Now().UTC())
-		case <-expiryTicker.C:
-			if pruneExpiredMarkets(activeMarkets, time.Now().UTC()) > 0 {
-				refreshFeed(false)
+		case marketInfo, ok := <-createdCh:
+			if !ok {
+				createdCh = nil
+				if expiredCh == nil {
+					log.Printf("all market event channels closed, token-ingestion will no longer receive market updates")
+				}
+				continue
 			}
+			market := protoToActiveMarket(marketInfo)
+			activeMarkets[market.MarketID] = market
+			refreshFeed(false)
+			log.Printf("market registered market=%s", market.MarketID)
+		case marketInfo, ok := <-expiredCh:
+			if !ok {
+				expiredCh = nil
+				if createdCh == nil {
+					log.Printf("all market event channels closed, token-ingestion will no longer receive market updates")
+				}
+				continue
+			}
+			delete(activeMarkets, marketInfo.MarketId)
+			refreshFeed(false)
+			log.Printf("market removed market=%s", marketInfo.MarketId)
 		case err, ok := <-errs:
 			if !ok {
 				errs = nil
@@ -171,30 +130,29 @@ func (u *WatchMarketTokensUseCase) Execute(ctx context.Context) error {
 				refreshFeed(true)
 				continue
 			}
-			u.publishTokenUpdate(ctx, activeMarkets, tokenToBinding, update)
+			publishTokenUpdate(ctx, u.publisher, u.tokenSubjectPattern, activeMarkets, tokenToBinding, update)
 		}
 	}
 }
 
-func (u *WatchMarketTokensUseCase) publishMarketCreated(ctx context.Context, market domain.ActiveMarket) error {
-	payload := &proto.MarketCreated{
-		Source:             "polymarket",
-		MarketId:           market.MarketID,
-		ConditionId:        market.ConditionID,
-		CryptoSymbol:       market.Crypto.MinName,
-		TimeframeMinutes:   int32(market.TimeframeMinutes),
-		UpTokenId:          market.UpTokenID,
-		DownTokenId:        market.DownTokenID,
-		StartUnixMs:        market.StartTime.UnixMilli(),
-		EndUnixMs:          market.EndTime.UnixMilli(),
-		DiscoveredAtUnixMs: time.Now().UnixMilli(),
-		Closed:             market.Closed,
+func protoToActiveMarket(m *proto.MarketInfo) domain.ActiveMarket {
+	return domain.ActiveMarket{
+		MarketID:         m.MarketId,
+		ConditionID:      m.ConditionId,
+		Crypto:           domain.Crypto{MinName: m.CryptoSymbol},
+		TimeframeMinutes: int(m.TimeframeMinutes),
+		UpTokenID:        m.UpTokenId,
+		DownTokenID:      m.DownTokenId,
+		StartTime:        time.UnixMilli(m.StartUnixMs).UTC(),
+		EndTime:          time.UnixMilli(m.EndUnixMs).UTC(),
+		Closed:           m.Closed,
 	}
-	return u.publisher.PublishMarketCreated(ctx, u.marketCreatedSubject, payload)
 }
 
-func (u *WatchMarketTokensUseCase) publishTokenUpdate(
+func publishTokenUpdate(
 	ctx context.Context,
+	publisher ports.MessagePublisher,
+	tokenSubjectPattern string,
 	activeMarkets map[string]domain.ActiveMarket,
 	tokenToBinding map[string]tokenBinding,
 	update domain.TokenPriceUpdate,
@@ -211,7 +169,7 @@ func (u *WatchMarketTokensUseCase) publishTokenUpdate(
 		return
 	}
 
-	subject := fmt.Sprintf(u.tokenSubjectPattern, sanitizeSubjectToken(market.MarketID))
+	subject := fmt.Sprintf(tokenSubjectPattern, sanitizeSubjectToken(market.MarketID))
 	payload := &proto.TokenPriceTick{
 		Source:          "polymarket",
 		MarketId:        market.MarketID,
@@ -221,7 +179,7 @@ func (u *WatchMarketTokensUseCase) publishTokenUpdate(
 		Price:           update.Price,
 		TimestampUnixMs: update.Timestamp.UnixMilli(),
 	}
-	if err := u.publisher.PublishTokenPriceTick(ctx, subject, payload); err != nil {
+	if err := publisher.PublishTokenPriceTick(ctx, subject, payload); err != nil {
 		log.Printf("token tick publish failed subject=%s market=%s token=%s: %v", subject, market.MarketID, update.TokenID, err)
 		return
 	}
@@ -235,103 +193,3 @@ func (u *WatchMarketTokensUseCase) publishTokenUpdate(
 	)
 }
 
-func pruneExpiredMarkets(active map[string]domain.ActiveMarket, now time.Time) int {
-	removed := 0
-	for key, market := range active {
-		if market.Closed || !now.Before(market.EndTime) {
-			delete(active, key)
-			removed++
-		}
-	}
-	return removed
-}
-
-func collectSortedTokenIDs(markets map[string]domain.ActiveMarket) []string {
-	unique := map[string]struct{}{}
-	for _, market := range markets {
-		if token := strings.TrimSpace(market.UpTokenID); token != "" {
-			unique[token] = struct{}{}
-		}
-		if token := strings.TrimSpace(market.DownTokenID); token != "" {
-			unique[token] = struct{}{}
-		}
-	}
-
-	out := make([]string, 0, len(unique))
-	for tokenID := range unique {
-		out = append(out, tokenID)
-	}
-	sort.Strings(out)
-	return out
-}
-
-func bindTokens(markets map[string]domain.ActiveMarket) map[string]tokenBinding {
-	out := make(map[string]tokenBinding, len(markets)*2)
-	for _, market := range markets {
-		if token := strings.TrimSpace(market.UpTokenID); token != "" {
-			out[token] = tokenBinding{marketID: market.MarketID, side: "UP"}
-		}
-		if token := strings.TrimSpace(market.DownTokenID); token != "" {
-			out[token] = tokenBinding{marketID: market.MarketID, side: "DOWN"}
-		}
-	}
-	return out
-}
-
-func marketWindow(now time.Time, marketType domain.MarketType) (time.Time, time.Time) {
-	if marketType == domain.MarketTypeSixtyMinutes {
-		ny := mustLoadLocationOrUTC("America/New_York")
-		inNY := now.In(ny).Truncate(time.Hour)
-		start := time.Date(inNY.Year(), inNY.Month(), inNY.Day(), inNY.Hour(), 0, 0, 0, ny)
-		end := start.Add(time.Hour)
-		return start.UTC(), end.UTC()
-	}
-
-	minutes := marketType.Minutes()
-	truncated := now.UTC().Truncate(time.Duration(minutes) * time.Minute)
-	return truncated, truncated.Add(time.Duration(minutes) * time.Minute)
-}
-
-func buildMarketSlug(crypto domain.Crypto, marketType domain.MarketType, start time.Time) string {
-	if marketType == domain.MarketTypeSixtyMinutes {
-		ny := mustLoadLocationOrUTC("America/New_York")
-		inNY := start.In(ny)
-		month := strings.ToLower(inNY.Month().String())
-		day := inNY.Day()
-		hour12 := inNY.Format("3")
-		ampm := strings.ToLower(inNY.Format("PM"))
-
-		return fmt.Sprintf(
-			"%s-up-or-down-%s-%d-%s%s-et",
-			strings.ToLower(crypto.FullName),
-			month,
-			day,
-			hour12,
-			ampm,
-		)
-	}
-
-	return fmt.Sprintf(
-		"%s-updown-%dm-%d",
-		strings.ToLower(crypto.MinName),
-		marketType.Minutes(),
-		start.UTC().Unix(),
-	)
-}
-
-func sanitizeSubjectToken(input string) string {
-	value := strings.ToLower(strings.TrimSpace(input))
-	value = strings.ReplaceAll(value, ".", "_")
-	value = strings.ReplaceAll(value, "*", "_")
-	value = strings.ReplaceAll(value, ">", "_")
-	value = strings.ReplaceAll(value, " ", "_")
-	return value
-}
-
-func mustLoadLocationOrUTC(name string) *time.Location {
-	loc, err := time.LoadLocation(name)
-	if err != nil || loc == nil {
-		return time.UTC
-	}
-	return loc
-}

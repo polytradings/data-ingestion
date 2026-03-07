@@ -40,34 +40,54 @@ Connects to a price feed (Binance or Polymarket) and publishes live cryptocurren
 
 ---
 
-### 2. `token-ingestion` — Market Discovery & Token Price Streamer
+### 2. `market-ingestion` — Market Discovery
 
-Periodically discovers active Polymarket prediction markets and streams UP/DOWN token prices for each.
+Periodically discovers active Polymarket prediction markets and publishes lifecycle events to NATS.
 
 - **Discovery loop** — polls Polymarket's API at a configurable interval.
 - **Timeframe filters** — 5-minute, 15-minute, and 60-minute markets.
 - **Asset matching** — only markets for tracked crypto assets are considered.
-- **Market lifecycle** — prunes expired markets automatically.
-- **Dynamic subscriptions** — subscribes/unsubscribes from token price streams as markets open and close.
+- **Market lifecycle** — checks for expired markets every second and publishes expiry events.
+- Publishes `market.created.v1` when a new market is found.
+- Publishes `market.expired.v1` when a market expires (same payload as `market.created.v1` but with `closed=true`).
 
 **Key env vars:**
 
-| Variable                                  | Description                       | Example              |
-| ----------------------------------------- | --------------------------------- | -------------------- |
-| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS` | How often to scan for new markets | `10`                 |
-| `TOKEN_MARKET_TYPES`                      | Timeframe windows (minutes)       | `5,15,60`            |
-| `NATS_SUBJECT_MARKET_CREATED`             | Subject for new-market events     | `market.created.v1`  |
-| `NATS_SUBJECT_TOKEN_PRICE_PATTERN`        | Subject pattern for token prices  | `token.prices.%s.v1` |
+| Variable                           | Description                       | Example                |
+| ---------------------------------- | --------------------------------- | ---------------------- |
+| `MARKET_DISCOVERY_INTERVAL_SECONDS`| How often to scan for new markets | `10`                   |
+| `TOKEN_MARKET_TYPES`               | Timeframe windows (minutes)       | `5,15,60`              |
+| `NATS_SUBJECT_MARKET_CREATED`      | Subject for new-market events     | `market.created.v1`    |
+| `NATS_SUBJECT_MARKET_EXPIRED`      | Subject for expired-market events | `market.expired.v1`    |
+
+---
+
+### 3. `token-ingestion` — Token Price Streamer
+
+Listens for market lifecycle events via NATS and streams UP/DOWN token prices for each active market.
+
+- **Event-driven** — subscribes to `market.created.v1` and `market.expired.v1` to maintain active market registry in memory.
+- **Dynamic subscriptions** — subscribes/unsubscribes from token price WebSocket streams as markets open and close.
+- **WebSocket with exponential backoff** — automatically reconnects on failure.
+
+**Key env vars:**
+
+| Variable                           | Description                                | Example              |
+| ---------------------------------- | ------------------------------------------ | -------------------- |
+| `NATS_SUBJECT_MARKET_CREATED`      | Subject to consume new-market events       | `market.created.v1`  |
+| `NATS_SUBJECT_MARKET_EXPIRED`      | Subject to consume expired-market events   | `market.expired.v1`  |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN` | Subject pattern for token prices           | `token.prices.%s.v1` |
 
 ---
 
 ## NATS Topics
 
-| Subject                         | Direction | Message Type      | Description                                                              |
-| ------------------------------- | --------- | ----------------- | ------------------------------------------------------------------------ |
+| Subject                         | Direction | Message Type      | Description                                                               |
+| ------------------------------- | --------- | ----------------- | ------------------------------------------------------------------------- |
 | `crypto.prices.<asset>.v1`      | Published | `CryptoPriceTick` | Live price tick for a tracked crypto asset (e.g. `crypto.prices.btc.v1`) |
-| `market.created.v1`             | Published | `MarketCreated`   | A new prediction market was discovered                                   |
-| `token.prices.<market_slug>.v1` | Published | `TokenPriceTick`  | Live UP/DOWN token price for an active market                            |
+| `market.created.v1`             | Published | `MarketInfo`      | A new prediction market was discovered (`closed=false`)                   |
+| `market.expired.v1`             | Published | `MarketInfo`      | A prediction market has expired (`closed=true`)                           |
+| `token.prices.<market_slug>.v1` | Published | `TokenPriceTick`  | Live UP/DOWN token price for an active market                             |
 
 ---
 
@@ -101,9 +121,9 @@ message TokenPriceTick {
   int64  timestamp_unix_ms = 7;
 }
 
-// Published to: market.created.v1
-// Fired when a new prediction market is discovered.
-message MarketCreated {
+// Published to: market.created.v1 (closed=false) and market.expired.v1 (closed=true)
+// Fired when a new prediction market is discovered or expires.
+message MarketInfo {
   string source                = 1; // "polymarket"
   string market_id             = 2;
   string condition_id          = 3;
@@ -114,7 +134,7 @@ message MarketCreated {
   int64  start_unix_ms         = 8;
   int64  end_unix_ms           = 9;
   int64  discovered_at_unix_ms = 10;
-  bool   closed                = 11;
+  bool   closed                = 11; // false = created, true = expired
 }
 ```
 
@@ -137,7 +157,7 @@ cd infra/docker
 ./compose-up.sh -d
 ```
 
-This starts all services plus NATS and Redis.
+This starts all services plus NATS.
 
 ### WSL / Architecture (GOARCH)
 
@@ -192,11 +212,11 @@ INGESTION_PLATFORM=binance go run ./cmd/crypto-ingestion
 # Crypto ingestion — Polymarket
 INGESTION_PLATFORM=polymarket CRYPTO_SYMBOLS=btc:bitcoin:usdc,eth:ethereum:usdc go run ./cmd/crypto-ingestion
 
-# Token ingestion
-TOKEN_MARKET_TYPES=5,15,60 go run ./cmd/token-ingestion
+# Market ingestion (discovers markets, publishes created/expired events)
+TOKEN_MARKET_TYPES=5,15,60 go run ./cmd/market-ingestion
 
-# Market price aggregator
-REDIS_URL=redis://localhost:6379 go run ./cmd/market-price-aggregator
+# Token ingestion (subscribes to market events, streams token prices)
+go run ./cmd/token-ingestion
 ```
 
 ---
@@ -205,24 +225,25 @@ REDIS_URL=redis://localhost:6379 go run ./cmd/market-price-aggregator
 
 Copy `.env.example` to `.env` and adjust the values for your environment.
 
-| Variable                                  | Default                                                | Description                                      |
-| ----------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ |
-| `NATS_URL`                                | `nats://localhost:4222`                                | NATS server connection URL                       |
-| `INGESTION_PLATFORM`                      | `polymarket`                                           | Price feed platform (`binance` \| `polymarket`)  |
-| `CRYPTO_SYMBOLS`                          | `btc:bitcoin:usdc,eth:ethereum:usdc`                   | Assets to track (`min:full:convert_to`)          |
-| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN`       | `crypto.prices.%s.v1`                                  | Subject pattern used by `crypto-ingestion`       |
-| `NATS_SUBJECT_TOKEN_PRICE_PATTERN`        | `token.prices.%s.v1`                                   | Subject pattern used by `token-ingestion`        |
-| `NATS_SUBJECT_MARKET_CREATED`             | `market.created.v1`                                    | Subject for publishing/consuming `MarketCreated` |
-| `TOKEN_MARKET_DISCOVERY_INTERVAL_SECONDS` | `10`                                                   | Market discovery poll interval (seconds)         |
-| `TOKEN_MARKET_TYPES`                      | `5,15,60`                                              | Bet-market timeframes to watch (minutes)         |
-| `POLYMARKET_WS_URL`                       | `wss://ws-live-data.polymarket.com`                    | Polymarket crypto WebSocket URL                  |
-| `BINANCE_WS_URL`                          | `wss://fstream.binance.com/stream`                     | Binance WebSocket URL                            |
-| `POLYMARKET_MARKET_LOOKUP_URL`            | `https://gamma-api.polymarket.com/markets`             | Polymarket market discovery API URL              |
-| `POLYMARKET_MARKET_WS_URL`                | `wss://ws-subscriptions-clob.polymarket.com/ws/market` | Polymarket token-price WebSocket URL             |
-| `WEBSOCKET_RETRY_INITIAL_DELAY`           | `500ms`                                                | Initial backoff delay for WebSocket reconnect    |
-| `WEBSOCKET_RETRY_MAX_DELAY`               | `20s`                                                  | Maximum backoff delay for WebSocket reconnect    |
-| `WEBSOCKET_RETRY_MULTIPLIER`              | `1.8`                                                  | Exponential factor for WebSocket backoff         |
-| `HTTP_RETRY_MAX_ATTEMPTS`                 | `8`                                                    | Maximum HTTP retry attempts                      |
-| `HTTP_RETRY_INITIAL_DELAY`                | `300ms`                                                | Initial HTTP retry delay                         |
-| `HTTP_RETRY_MAX_DELAY`                    | `6s`                                                   | Maximum HTTP retry delay                         |
-| `HTTP_RETRY_MULTIPLIER`                   | `1.8`                                                  | Exponential factor for HTTP retry backoff        |
+| Variable                            | Default                                                | Description                                       |
+| ----------------------------------- | ------------------------------------------------------ | ------------------------------------------------- |
+| `NATS_URL`                          | `nats://localhost:4222`                                | NATS server connection URL                        |
+| `INGESTION_PLATFORM`                | `polymarket`                                           | Price feed platform (`binance` \| `polymarket`)   |
+| `CRYPTO_SYMBOLS`                    | `btc:bitcoin:usdc,eth:ethereum:usdc`                   | Assets to track (`min:full:convert_to`)           |
+| `NATS_SUBJECT_CRYPTO_PRICE_PATTERN` | `crypto.prices.%s.v1`                                  | Subject pattern used by `crypto-ingestion`        |
+| `NATS_SUBJECT_TOKEN_PRICE_PATTERN`  | `token.prices.%s.v1`                                   | Subject pattern used by `token-ingestion`         |
+| `NATS_SUBJECT_MARKET_CREATED`       | `market.created.v1`                                    | Subject for publishing/consuming `MarketInfo` (created) |
+| `NATS_SUBJECT_MARKET_EXPIRED`       | `market.expired.v1`                                    | Subject for publishing/consuming `MarketInfo` (expired) |
+| `MARKET_DISCOVERY_INTERVAL_SECONDS` | `10`                                                   | Market discovery poll interval (seconds)          |
+| `TOKEN_MARKET_TYPES`                | `5,15,60`                                              | Bet-market timeframes to watch (minutes)          |
+| `POLYMARKET_WS_URL`                 | `wss://ws-live-data.polymarket.com`                    | Polymarket crypto WebSocket URL                   |
+| `BINANCE_WS_URL`                    | `wss://fstream.binance.com/stream`                     | Binance WebSocket URL                             |
+| `POLYMARKET_MARKET_LOOKUP_URL`      | `https://gamma-api.polymarket.com/markets`             | Polymarket market discovery API URL               |
+| `POLYMARKET_MARKET_WS_URL`          | `wss://ws-subscriptions-clob.polymarket.com/ws/market` | Polymarket token-price WebSocket URL              |
+| `WEBSOCKET_RETRY_INITIAL_DELAY`     | `500ms`                                                | Initial backoff delay for WebSocket reconnect     |
+| `WEBSOCKET_RETRY_MAX_DELAY`         | `20s`                                                  | Maximum backoff delay for WebSocket reconnect     |
+| `WEBSOCKET_RETRY_MULTIPLIER`        | `1.8`                                                  | Exponential factor for WebSocket backoff          |
+| `HTTP_RETRY_MAX_ATTEMPTS`           | `8`                                                    | Maximum HTTP retry attempts                       |
+| `HTTP_RETRY_INITIAL_DELAY`          | `300ms`                                                | Initial HTTP retry delay                          |
+| `HTTP_RETRY_MAX_DELAY`              | `6s`                                                   | Maximum HTTP retry delay                          |
+| `HTTP_RETRY_MULTIPLIER`             | `1.8`                                                  | Exponential factor for HTTP retry backoff         |
