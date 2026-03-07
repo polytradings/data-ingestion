@@ -1,90 +1,222 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
   <diagram name="Página-1" id="oKVKt5eYpxgTbuh-fuv8">
-    <mxGraphModel dx="2792" dy="2574" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3839" dy="1970" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="CyQnExDoAJgP8gCPNE_n-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=22;labelBackgroundColor=default;" value="Data Ingestion: Service Architecture" vertex="1">
-          <mxGeometry height="660" width="920" x="-810" y="-1150" as="geometry" />
+          <mxGeometry height="820" width="1480" x="-2440" y="-1150" as="geometry" />
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fontSize=15;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="External Data Sources" vertex="1">
-          <mxGeometry height="150" width="900" x="-800" y="-1090" as="geometry" />
+          <mxGeometry height="730" width="400" x="-2400" y="-1090" as="geometry" />
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-40" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-50">
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-40" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" target="CyQnExDoAJgP8gCPNE_n-50">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-41" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-40" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: fstream" vertex="1">
           <mxGeometry relative="1" x="0.5897" y="1" as="geometry">
-            <mxPoint x="-1" y="9" as="offset" />
+            <mxPoint x="-24" y="9" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="CyQnExDoAJgP8gCPNE_n-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Binance WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(fstream)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="70" width="230" x="-646" y="-1040" as="geometry" />
+          <mxGeometry height="70" width="230" x="-2315" y="-1030" as="geometry" />
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-43" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-53">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-44" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-43" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: ws-live-data" vertex="1">
-          <mxGeometry relative="1" x="0.5547" y="1" as="geometry">
-            <mxPoint x="-1" y="7" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-45" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-56">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-46" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-45" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: gamma-api&lt;div&gt;via: ws-subscriptions-clob&lt;/div&gt;" vertex="1">
-          <mxGeometry relative="1" x="0.5396" as="geometry">
-            <mxPoint y="7" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-47" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Polymarket API / WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;ws-live-data&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;gamma-api + ws-subscriptions-clob)&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="70" width="370" x="-360" y="-1040" as="geometry" />
-        </mxCell>
-        <mxCell id="8q7GFOKoAaRMcLtVGWaL-1" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-43" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;dashed=1;" target="CyQnExDoAJgP8gCPNE_n-53">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-660" y="-700" />
-              <mxPoint x="-434" y="-700" />
+              <mxPoint x="-1870" y="-775" />
+              <mxPoint x="-1870" y="-775" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 1: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: binance)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes crypto currency prices (CryptoPriceTick)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="110" width="280" x="-800" y="-860" as="geometry" />
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-44" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-43" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="via: ws-live-data" vertex="1">
+          <mxGeometry relative="1" x="0.5547" y="1" as="geometry">
+            <mxPoint x="-53" y="7" as="offset" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="8q7GFOKoAaRMcLtVGWaL-2" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-45" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" target="CyQnExDoAJgP8gCPNE_n-56">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-370" y="-700" />
-              <mxPoint x="-434" y="-700" />
+              <mxPoint x="-2123" y="-535" />
+            </Array>
+            <mxPoint x="-1930" y="-280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-46" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-45" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;via: ws-subscriptions-clob&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.5396" as="geometry">
+            <mxPoint x="-23" y="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-1" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;dashed=1;dashPattern=8 4 1 4;" target="v0C-CfSLvrvqMTWgS-L0-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2215" y="-655" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-2" connectable="0" parent="mFjismiYiKdKAXYY_14K-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;via: gamma-api&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.7295" y="-3" as="geometry">
+            <mxPoint x="5" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-47" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;b&gt;Polymarket API / WebSocket&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;ws-live-data&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;gamma-api + ws-subscriptions-clob)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="370" x="-2385" y="-810" as="geometry" />
+        </mxCell>
+        <mxCell id="8q7GFOKoAaRMcLtVGWaL-1" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1490" y="-995" />
+              <mxPoint x="-1490" y="-902" />
+              <mxPoint x="-1370" y="-902" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 1: crypto-ingestion-binance&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;[platform: &lt;b&gt;binance&lt;/b&gt;]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes crypto currency prices (CryptoPriceTick)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="-1850" y="-1050" as="geometry" />
+        </mxCell>
+        <mxCell id="8q7GFOKoAaRMcLtVGWaL-2" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1490" y="-740" />
+              <mxPoint x="-1490" y="-902" />
+              <mxPoint x="-1370" y="-902" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="8q7GFOKoAaRMcLtVGWaL-3" connectable="0" parent="8q7GFOKoAaRMcLtVGWaL-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="crypto.prices.&amp;lt;asset&amp;gt;.v1" vertex="1">
           <mxGeometry relative="1" x="0.7375" y="1" as="geometry">
-            <mxPoint x="-7" y="-56" as="offset" />
+            <mxPoint x="-26" y="-16" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 2: crypto-ingestion&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(platform: polymarket)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes crypto currency prices (CryptoPriceTick)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="110" width="280" x="-510" y="-860" as="geometry" />
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Service 2: crypto-ingestion-polymarket&lt;/b&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;[platform: &lt;b&gt;polymarket&lt;/b&gt;]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Publishes crypto currency prices (CryptoPriceTick)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="-1850" y="-830" as="geometry" />
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-54" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-54" edge="1" parent="1" source="v0C-CfSLvrvqMTWgS-L0-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" target="CyQnExDoAJgP8gCPNE_n-57" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-60" y="-700" />
-              <mxPoint x="-306" y="-700" />
+              <mxPoint x="-1276" y="-655" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-55" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-54" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;token.&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;prices.&amp;lt;slug&amp;gt;.v1&lt;/span&gt;&lt;/div&gt;&lt;div&gt;market.created.v1&lt;/div&gt;" vertex="1">
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-55" connectable="0" parent="CyQnExDoAJgP8gCPNE_n-54" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;market.expired.v1&lt;/span&gt;" vertex="1">
           <mxGeometry relative="1" x="0.6059" y="2" as="geometry">
-            <mxPoint x="185" y="18" as="offset" />
+            <mxPoint x="-92" y="70" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-56" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 3: token-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;text-align: left; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Discovers and publishes active markets [5m / 15m / 60m] (MarketCreated)&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Publishes token&amp;nbsp;prices [UP/DOWN] (&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;TokenPriceTick&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;)&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="110" width="320" x="-220" y="-860" as="geometry" />
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-56" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 4: token-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;text-align: left; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;[UP/DOWN]&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Publishes token&amp;nbsp;prices (&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;TokenPriceTick&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="-1850" y="-590" as="geometry" />
         </mxCell>
-        <mxCell id="CyQnExDoAJgP8gCPNE_n-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;Service 4 - NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Topics&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;crypto.prices.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.created.v1&lt;/td&gt;&lt;td&gt;MarketCreated&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;token.prices.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="115" width="255" x="-497.5" y="-630" as="geometry" />
+        <mxCell id="mFjismiYiKdKAXYY_14K-9" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;dashPattern=8 8;" target="CyQnExDoAJgP8gCPNE_n-56">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1149" y="-508" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-10" connectable="0" parent="mFjismiYiKdKAXYY_14K-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="market.expired.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.102" y="4" as="geometry">
+            <mxPoint x="-50" y="-17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-11" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;dashPattern=8 8;" target="mFjismiYiKdKAXYY_14K-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1000" y="-902" />
+              <mxPoint x="-1000" y="-415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-13" connectable="0" parent="mFjismiYiKdKAXYY_14K-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="market.created.v1" vertex="1">
+          <mxGeometry relative="1" x="0.0962" as="geometry">
+            <mxPoint x="-6" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-12" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;dashPattern=8 8;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="mFjismiYiKdKAXYY_14K-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1000" y="-941" />
+              <mxPoint x="-1000" y="-388" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-14" connectable="0" parent="mFjismiYiKdKAXYY_14K-12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="market.expired.v1" vertex="1">
+          <mxGeometry relative="1" x="0.2081" y="-1" as="geometry">
+            <mxPoint x="32" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-16" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;dashPattern=8 8;fillColor=#dae8fc;strokeColor=#6c8ebf;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-17" connectable="0" parent="mFjismiYiKdKAXYY_14K-16" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="market.created.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.0476" y="-2" as="geometry">
+            <mxPoint x="-17" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JOjB4TXwMFutHNTeMby9-1" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=1;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;exitX=0.75;exitY=0;exitDx=0;exitDy=0;" target="mFjismiYiKdKAXYY_14K-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1149" y="-1000" />
+              <mxPoint x="-980" y="-1000" />
+              <mxPoint x="-980" y="-340" />
+              <mxPoint x="-1640" y="-340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JOjB4TXwMFutHNTeMby9-2" connectable="0" parent="JOjB4TXwMFutHNTeMby9-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="crypto.prices.&amp;lt;asset&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="0.1864" y="-4" as="geometry">
+            <mxPoint x="-12" y="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CyQnExDoAJgP8gCPNE_n-57" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;div&gt;&lt;b&gt;Service 6 - NATS&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Topics&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;table style=&quot;text-align: justify;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;crypto.prices.&amp;lt;asset&amp;gt;.v1&lt;/td&gt;&lt;td&gt;CryptoPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.created.v1&lt;/td&gt;&lt;td&gt;MarketInfo&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;market.expired.v1&lt;/td&gt;&lt;td&gt;MarketInfo&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;token.prices.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;TokenPriceTick&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;price-to-beat.&amp;lt;slug&amp;gt;.v1&lt;/td&gt;&lt;td&gt;PriceToBeat&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="155" width="255" x="-1340" y="-980" as="geometry" />
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-3" edge="1" parent="1" source="CyQnExDoAJgP8gCPNE_n-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;strokeWidth=2;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1212" y="-563" />
+            </Array>
+            <mxPoint x="-1180" y="-750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-4" connectable="0" parent="mFjismiYiKdKAXYY_14K-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="token.prices.&amp;lt;slug&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.7883" y="1" as="geometry">
+            <mxPoint x="224" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-20" edge="1" parent="1" source="v0C-CfSLvrvqMTWgS-L0-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1470" y="-682" />
+              <mxPoint x="-1470" y="-864" />
+              <mxPoint x="-1340" y="-864" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-21" connectable="0" parent="mFjismiYiKdKAXYY_14K-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="market.created.v1" vertex="1">
+          <mxGeometry relative="1" x="0.0818" y="-2" as="geometry">
+            <mxPoint x="48" y="-37" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v0C-CfSLvrvqMTWgS-L0-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 3: market-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;[5m / 15m / 60m]&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;Publishes uncovered active markets&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;(MarketInfo&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;)&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;Publishes expired active markets (MarketInfo)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="-1850" y="-710" as="geometry" />
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-18" edge="1" parent="1" source="mFjismiYiKdKAXYY_14K-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.001;entryY=0.78;entryDx=0;entryDy=0;exitX=1;exitY=0.273;exitDx=0;exitDy=0;exitPerimeter=0;entryPerimeter=0;strokeWidth=2;" target="CyQnExDoAJgP8gCPNE_n-57">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-1040" y="-440" />
+              <mxPoint x="-1040" y="-860" />
+              <mxPoint x="-1085" y="-860" />
+            </Array>
+            <mxPoint x="-1530" y="-430" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-19" connectable="0" parent="mFjismiYiKdKAXYY_14K-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="price-to-beat.&amp;lt;slug&amp;gt;.v1" vertex="1">
+          <mxGeometry relative="1" x="-0.0485" y="2" as="geometry">
+            <mxPoint x="-11" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mFjismiYiKdKAXYY_14K-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;div style=&quot;&quot;&gt;&lt;b style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Service 5: price-to-beat-ingestion&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;text-align: left; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;text-align: left; background-color: transparent;&quot;&gt;[00:00 / 00:05m / 00:10]&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;text-align: left; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;Publishes price to beat from active markets&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;(PriceToBeat)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="-1850" y="-470" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
