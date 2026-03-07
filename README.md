@@ -16,7 +16,7 @@ Any downstream service can subscribe to NATS topics and consume the Protobuf mes
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture_v1-1.png)
+![Architecture Diagram](docs/architecture_v1-2.png)
 
 ---
 
