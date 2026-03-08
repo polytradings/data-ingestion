@@ -65,9 +65,16 @@ type PriceToBeatIngestionConfig struct {
 	NATSPriceToBeatSubjectPattern  string
 	PriceToBeatBootstrapAPIURL     string
 	PriceToBeatJetStreamBucket     string
+	PriceToBeatCryptoStreamName    string
+	PriceToBeatCryptoStreamMaxAge  time.Duration
 	PriceToBeatReconcileDelay      time.Duration
 	PriceToBeatPublishThresholdBps float64
 	PriceToBeatOpenGracePeriod     time.Duration
+	PriceToBeatWindow              time.Duration
+	PriceToBeatUpdateCooldown      time.Duration
+	PriceToBeatPolymarketWeight    float64
+	PriceToBeatBinanceAPIURL       string
+	PriceToBeatBinanceQuoteSymbol  string
 
 	HTTPRetryMaxAttempts  int
 	HTTPRetryInitialDelay time.Duration
@@ -212,9 +219,16 @@ func LoadPriceToBeatIngestionConfig() (PriceToBeatIngestionConfig, error) {
 			"https://gamma-api.polymarket.com/markets",
 		),
 		PriceToBeatJetStreamBucket:     getOrDefault("PRICE_TO_BEAT_JETSTREAM_BUCKET", "price_to_beat"),
+		PriceToBeatCryptoStreamName:    getOrDefault("PRICE_TO_BEAT_CRYPTO_STREAM_NAME", "CRYPTO_PRICES"),
+		PriceToBeatCryptoStreamMaxAge:  getDurationOrDefault("PRICE_TO_BEAT_CRYPTO_STREAM_MAX_AGE", 15*time.Minute),
 		PriceToBeatReconcileDelay:      getDurationOrDefault("PRICE_TO_BEAT_RECONCILE_DELAY", 2*time.Minute),
 		PriceToBeatPublishThresholdBps: getFloatOrDefault("PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS", 1),
 		PriceToBeatOpenGracePeriod:     getDurationOrDefault("PRICE_TO_BEAT_OPEN_GRACE_PERIOD", 20*time.Second),
+		PriceToBeatWindow:              getDurationOrDefault("PRICE_TO_BEAT_WINDOW", 10*time.Minute),
+		PriceToBeatUpdateCooldown:      getDurationOrDefault("PRICE_TO_BEAT_UPDATE_COOLDOWN", 2*time.Minute),
+		PriceToBeatPolymarketWeight:    getFloatOrDefault("PRICE_TO_BEAT_POLYMARKET_WEIGHT", 0.7),
+		PriceToBeatBinanceAPIURL:       getOrDefault("BINANCE_API_URL", "https://api.binance.com"),
+		PriceToBeatBinanceQuoteSymbol:  getOrDefault("PRICE_TO_BEAT_BINANCE_QUOTE_SYMBOL", "USDT"),
 		HTTPRetryMaxAttempts:           getIntOrDefault("HTTP_RETRY_MAX_ATTEMPTS", 5),
 		HTTPRetryInitialDelay:          getDurationOrDefault("HTTP_RETRY_INITIAL_DELAY", 500*time.Millisecond),
 		HTTPRetryMaxDelay:              getDurationOrDefault("HTTP_RETRY_MAX_DELAY", 5*time.Second),
@@ -240,6 +254,21 @@ func LoadPriceToBeatIngestionConfig() (PriceToBeatIngestionConfig, error) {
 	}
 	if cfg.PriceToBeatReconcileDelay < 0 {
 		return cfg, fmt.Errorf("PRICE_TO_BEAT_RECONCILE_DELAY must be >= 0")
+	}
+	if cfg.PriceToBeatWindow <= 0 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_WINDOW must be > 0")
+	}
+	if cfg.PriceToBeatUpdateCooldown < 0 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_UPDATE_COOLDOWN must be >= 0")
+	}
+	if cfg.PriceToBeatPolymarketWeight < 0 || cfg.PriceToBeatPolymarketWeight > 1 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_POLYMARKET_WEIGHT must be between 0 and 1")
+	}
+	if strings.TrimSpace(cfg.PriceToBeatBinanceAPIURL) == "" {
+		return cfg, fmt.Errorf("BINANCE_API_URL cannot be empty")
+	}
+	if strings.TrimSpace(cfg.PriceToBeatBinanceQuoteSymbol) == "" {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_BINANCE_QUOTE_SYMBOL cannot be empty")
 	}
 
 	return cfg, nil

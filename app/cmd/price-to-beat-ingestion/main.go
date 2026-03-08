@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/polytradings/data-ingestion/internal/adapters/outbound/binance"
 	natsadapter "github.com/polytradings/data-ingestion/internal/adapters/outbound/nats"
 	"github.com/polytradings/data-ingestion/internal/adapters/outbound/polymarket"
 	"github.com/polytradings/data-ingestion/internal/adapters/outbound/retry"
@@ -37,6 +38,7 @@ func main() {
 		Multiplier:   cfg.HTTPRetryMultiplier,
 	}
 	externalProvider := polymarket.NewPriceToBeatProvider(cfg.PriceToBeatBootstrapAPIURL, httpBackoff, cfg.HTTPRetryMaxAttempts)
+	openPriceProvider := binance.NewOpenPriceProvider(cfg.PriceToBeatBinanceAPIURL, cfg.PriceToBeatBinanceQuoteSymbol, httpBackoff, cfg.HTTPRetryMaxAttempts)
 
 	var stateStore ports.PriceToBeatStateStore = natsadapter.NewNoopPriceToBeatStore()
 	jetstreamStore, err := natsadapter.NewPriceToBeatKVStore(nc, cfg.PriceToBeatJetStreamBucket)
@@ -46,10 +48,25 @@ func main() {
 		stateStore = jetstreamStore
 	}
 
+	var historyProvider ports.CryptoPriceHistoryProvider = natsadapter.NewNoopCryptoHistoryProvider()
+	jetstreamHistoryProvider, err := natsadapter.NewCryptoHistoryProvider(
+		nc,
+		cfg.PriceToBeatCryptoStreamName,
+		cfg.NATSCryptoPriceSubjectPattern,
+		cfg.PriceToBeatCryptoStreamMaxAge,
+	)
+	if err != nil {
+		log.Printf("jetstream crypto history unavailable, falling back to no history provider: %v", err)
+	} else {
+		historyProvider = jetstreamHistoryProvider
+	}
+
 	uc := application.NewTrackPriceToBeatUseCase(
 		subscriber,
 		subscriber,
 		externalProvider,
+		openPriceProvider,
+		historyProvider,
 		stateStore,
 		publisher,
 		cfg.NATSPriceToBeatSubjectPattern,
@@ -59,6 +76,9 @@ func main() {
 		cfg.PriceToBeatReconcileDelay,
 		cfg.PriceToBeatPublishThresholdBps,
 		cfg.PriceToBeatOpenGracePeriod,
+		cfg.PriceToBeatWindow,
+		cfg.PriceToBeatUpdateCooldown,
+		cfg.PriceToBeatPolymarketWeight,
 	)
 
 	log.Printf(
