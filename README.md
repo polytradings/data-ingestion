@@ -9,6 +9,7 @@ This project connects to external data sources (Binance and Polymarket) to:
 1. **Track real-time crypto prices** — streams live BTC, ETH and other asset prices as price-tick events on NATS.
 2. **Discover prediction markets** — scans Polymarket for active bet markets matched to tracked crypto assets and configurable timeframes (5 min, 15 min, 60 min).
 3. **Stream bet-token prices** — publishes real-time UP/DOWN token prices for each active market.
+4. **Compute price-to-beat for active markets** — publishes a best-effort reference using external bootstrap + internal stream refinement.
 
 Any downstream service can subscribe to NATS topics and consume the Protobuf messages using the schema defined in this repo.
 
@@ -80,6 +81,26 @@ Listens for market lifecycle events via NATS and streams UP/DOWN token prices fo
 
 ---
 
+### 4. `price-to-beat-ingestion` — Price-To-Beat Estimator
+
+Consumes market lifecycle and crypto ticks to publish `PriceToBeat` updates per market slug.
+
+- **Hybrid strategy** — bootstraps with Gamma API when available, then refines using internal crypto stream.
+- **Low-latency state** — stores last revision in NATS JetStream KeyValue to survive restarts without extra runtime components.
+- **Final reconciliation** — after market expiry, retries external lookup and publishes a final revision when available.
+
+**Key env vars:**
+
+| Variable                                 | Description                                             | Example                          |
+| ---------------------------------------- | ------------------------------------------------------- | -------------------------------- |
+| `NATS_SUBJECT_PRICE_TO_BEAT_PATTERN`     | Subject pattern for `PriceToBeat` events               | `price-to-beat.%s.v1`            |
+| `POLYMARKET_PRICE_TO_BEAT_BOOTSTRAP_URL` | External bootstrap/finalization API                    | `https://gamma-api.../markets`   |
+| `PRICE_TO_BEAT_JETSTREAM_BUCKET`         | JetStream KV bucket for persisted state               | `price_to_beat`                  |
+| `PRICE_TO_BEAT_RECONCILE_DELAY`          | Delay after market expiry before final external lookup | `2m`                             |
+| `PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS`    | Min delta to publish revision                          | `1`                              |
+
+---
+
 ## NATS Topics
 
 | Subject                         | Direction | Message Type      | Description                                                               |
@@ -88,6 +109,7 @@ Listens for market lifecycle events via NATS and streams UP/DOWN token prices fo
 | `market.created.v1`             | Published | `MarketInfo`      | A new prediction market was discovered (`closed=false`)                   |
 | `market.expired.v1`             | Published | `MarketInfo`      | A prediction market has expired (`closed=true`)                           |
 | `token.prices.<market_slug>.v1` | Published | `TokenPriceTick`  | Live UP/DOWN token price for an active market                             |
+| `price-to-beat.<market_slug>.v1` | Published | `PriceToBeat`     | Best-known price to beat for the market, versioned by revision            |
 
 ---
 
@@ -135,6 +157,21 @@ message MarketInfo {
   int64  end_unix_ms           = 9;
   int64  discovered_at_unix_ms = 10;
   bool   closed                = 11; // false = created, true = expired
+}
+
+// Published to: price-to-beat.<market_slug>.v1
+message PriceToBeat {
+  string source            = 1; // external_bootstrap | stream_estimated | finalized_gamma
+  string market_id         = 2;
+  string condition_id      = 3;
+  string crypto_symbol     = 4;
+  int32  timeframe_minutes = 5;
+  double price_to_beat     = 6;
+  string method            = 7;
+  double confidence        = 8;
+  int64  computed_at_unix_ms = 9;
+  int32  revision          = 10;
+  bool   finalized         = 11;
 }
 ```
 
@@ -217,6 +254,9 @@ TOKEN_MARKET_TYPES=5,15,60 go run ./cmd/market-ingestion
 
 # Token ingestion (subscribes to market events, streams token prices)
 go run ./cmd/token-ingestion
+
+# Price-to-beat ingestion (bootstrap + stream refinement + reconciliation)
+go run ./cmd/price-to-beat-ingestion
 ```
 
 ---
@@ -247,3 +287,9 @@ Copy `.env.example` to `.env` and adjust the values for your environment.
 | `HTTP_RETRY_INITIAL_DELAY`          | `300ms`                                                | Initial HTTP retry delay                          |
 | `HTTP_RETRY_MAX_DELAY`              | `6s`                                                   | Maximum HTTP retry delay                          |
 | `HTTP_RETRY_MULTIPLIER`             | `1.8`                                                  | Exponential factor for HTTP retry backoff         |
+| `NATS_SUBJECT_PRICE_TO_BEAT_PATTERN`| `price-to-beat.%s.v1`                                  | Subject pattern used by `price-to-beat-ingestion` |
+| `POLYMARKET_PRICE_TO_BEAT_BOOTSTRAP_URL` | `https://gamma-api.polymarket.com/markets`        | External bootstrap/finalization API URL           |
+| `PRICE_TO_BEAT_JETSTREAM_BUCKET`    | `price_to_beat`                                        | JetStream KV bucket for persisted state           |
+| `PRICE_TO_BEAT_RECONCILE_DELAY`     | `2m`                                                   | Delay after market expiry before final lookup     |
+| `PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS` | `1`                                                  | Min delta (BPS) required to publish a revision    |
+| `PRICE_TO_BEAT_OPEN_GRACE_PERIOD`   | `20s`                                                  | Grace period after market open before first publish |

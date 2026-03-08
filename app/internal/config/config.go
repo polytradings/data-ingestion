@@ -57,6 +57,23 @@ type MarketIngestionConfig struct {
 	MarketTypes []domain.MarketType
 }
 
+type PriceToBeatIngestionConfig struct {
+	NATSURL                        string
+	NATSMarketCreatedSubject       string
+	NATSMarketExpiredSubject       string
+	NATSCryptoPriceSubjectPattern  string
+	NATSPriceToBeatSubjectPattern  string
+	PriceToBeatBootstrapAPIURL     string
+	PriceToBeatJetStreamBucket     string
+	PriceToBeatReconcileDelay      time.Duration
+	PriceToBeatPublishThresholdBps float64
+	PriceToBeatOpenGracePeriod     time.Duration
+
+	HTTPRetryMaxAttempts  int
+	HTTPRetryInitialDelay time.Duration
+	HTTPRetryMaxDelay     time.Duration
+	HTTPRetryMultiplier   float64
+}
 type MarketPriceAggregatorConfig struct {
 	NATSURL                          string
 	NATSMarketAggregatedPriceSubject string
@@ -183,6 +200,50 @@ func LoadMarketIngestionConfig() (MarketIngestionConfig, error) {
 	return cfg, nil
 }
 
+func LoadPriceToBeatIngestionConfig() (PriceToBeatIngestionConfig, error) {
+	cfg := PriceToBeatIngestionConfig{
+		NATSURL:                       getOrDefault("NATS_URL", "nats://localhost:4222"),
+		NATSMarketCreatedSubject:      getOrDefault("NATS_SUBJECT_MARKET_CREATED", "market.created.v1"),
+		NATSMarketExpiredSubject:      getOrDefault("NATS_SUBJECT_MARKET_EXPIRED", "market.expired.v1"),
+		NATSCryptoPriceSubjectPattern: getOrDefault("NATS_SUBJECT_CRYPTO_PRICE_PATTERN", "crypto.prices.%s.v1"),
+		NATSPriceToBeatSubjectPattern: getOrDefault("NATS_SUBJECT_PRICE_TO_BEAT_PATTERN", "price-to-beat.%s.v1"),
+		PriceToBeatBootstrapAPIURL: getOrDefault(
+			"POLYMARKET_PRICE_TO_BEAT_BOOTSTRAP_URL",
+			"https://gamma-api.polymarket.com/markets",
+		),
+		PriceToBeatJetStreamBucket:     getOrDefault("PRICE_TO_BEAT_JETSTREAM_BUCKET", "price_to_beat"),
+		PriceToBeatReconcileDelay:      getDurationOrDefault("PRICE_TO_BEAT_RECONCILE_DELAY", 2*time.Minute),
+		PriceToBeatPublishThresholdBps: getFloatOrDefault("PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS", 1),
+		PriceToBeatOpenGracePeriod:     getDurationOrDefault("PRICE_TO_BEAT_OPEN_GRACE_PERIOD", 20*time.Second),
+		HTTPRetryMaxAttempts:           getIntOrDefault("HTTP_RETRY_MAX_ATTEMPTS", 5),
+		HTTPRetryInitialDelay:          getDurationOrDefault("HTTP_RETRY_INITIAL_DELAY", 500*time.Millisecond),
+		HTTPRetryMaxDelay:              getDurationOrDefault("HTTP_RETRY_MAX_DELAY", 5*time.Second),
+		HTTPRetryMultiplier:            getFloatOrDefault("HTTP_RETRY_MULTIPLIER", 2),
+	}
+
+	if cfg.HTTPRetryMaxAttempts <= 0 {
+		return cfg, fmt.Errorf("HTTP_RETRY_MAX_ATTEMPTS must be positive")
+	}
+	if err := validateRetryConfig(
+		"HTTP_RETRY",
+		cfg.HTTPRetryInitialDelay,
+		cfg.HTTPRetryMaxDelay,
+		cfg.HTTPRetryMultiplier,
+	); err != nil {
+		return cfg, err
+	}
+	if cfg.PriceToBeatPublishThresholdBps < 0 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS must be >= 0")
+	}
+	if cfg.PriceToBeatOpenGracePeriod < 0 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_OPEN_GRACE_PERIOD must be >= 0")
+	}
+	if cfg.PriceToBeatReconcileDelay < 0 {
+		return cfg, fmt.Errorf("PRICE_TO_BEAT_RECONCILE_DELAY must be >= 0")
+	}
+
+	return cfg, nil
+}
 func getOrDefault(key, fallback string) string {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {

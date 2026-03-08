@@ -90,6 +90,24 @@ services:
       - nats-net
     restart: unless-stopped
 
+  price-to-beat-ingestion:
+    container_name: price-to-beat-ingestion
+    build:
+      context: ../../app
+      dockerfile: Dockerfile
+      args:
+        SERVICE: price-to-beat-ingestion
+        TARGETOS: ${TARGETOS:-linux}
+        TARGETARCH: ${TARGETARCH:-}
+    env_file:
+      - ../../.env
+    depends_on:
+      nats:
+        condition: service_healthy
+    networks:
+      - nats-net
+    restart: unless-stopped
+
 networks:
   nats-net:
     driver: bridge

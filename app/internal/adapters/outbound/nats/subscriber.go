@@ -9,7 +9,10 @@ import (
 	"github.com/polytradings/data-ingestion/internal/proto"
 )
 
-const marketInfoChannelBuffer = 256
+const (
+	marketInfoChannelBuffer  = 256
+	cryptoPriceChannelBuffer = 1024
+)
 
 type ProtoSubscriber struct {
 	nc *nats.Conn
@@ -17,6 +20,17 @@ type ProtoSubscriber struct {
 
 func NewProtoSubscriber(nc *nats.Conn) *ProtoSubscriber {
 	return &ProtoSubscriber{nc: nc}
+}
+
+// scheduleDrain waits for ctx cancellation, then drains the subscription and calls onDone.
+func scheduleDrain(ctx context.Context, sub *nats.Subscription, subject string, onDone func()) {
+	go func() {
+		<-ctx.Done()
+		if err := sub.Drain(); err != nil {
+			log.Printf("nats subscriber: drain failed subject=%s: %v", subject, err)
+		}
+		onDone()
+	}()
 }
 
 func (s *ProtoSubscriber) SubscribeMarketInfo(ctx context.Context, subject string) (<-chan *proto.MarketInfo, error) {
@@ -37,15 +51,30 @@ func (s *ProtoSubscriber) SubscribeMarketInfo(ctx context.Context, subject strin
 		return nil, fmt.Errorf("nats subscribe %s: %w", subject, err)
 	}
 
-	go func() {
-		<-ctx.Done()
-		// Drain waits for all in-flight callbacks to complete before closing the subscription,
-		// ensuring no callbacks will send to ch after it is closed below.
-		if err := sub.Drain(); err != nil {
-			log.Printf("nats subscriber: drain failed subject=%s: %v", subject, err)
+	scheduleDrain(ctx, sub, subject, func() { close(ch) })
+
+	return ch, nil
+}
+
+func (s *ProtoSubscriber) SubscribeCryptoPriceTick(ctx context.Context, subject string) (<-chan *proto.CryptoPriceTick, error) {
+	ch := make(chan *proto.CryptoPriceTick, cryptoPriceChannelBuffer)
+
+	sub, err := s.nc.Subscribe(subject, func(msg *nats.Msg) {
+		var tick proto.CryptoPriceTick
+		if err := proto.UnmarshalCryptoPriceTick(msg.Data, &tick); err != nil {
+			log.Printf("nats subscriber: unmarshal CryptoPriceTick failed subject=%s: %v", msg.Subject, err)
+			return
 		}
-		close(ch)
-	}()
+		select {
+		case ch <- &tick:
+		case <-ctx.Done():
+		}
+	})
+	if err != nil {
+		return nil, fmt.Errorf("nats subscribe %s: %w", subject, err)
+	}
+
+	scheduleDrain(ctx, sub, subject, func() { close(ch) })
 
 	return ch, nil
 }
