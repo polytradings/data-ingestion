@@ -98,6 +98,11 @@ Consumes market lifecycle and crypto ticks to publish `PriceToBeat` updates per 
 | `PRICE_TO_BEAT_JETSTREAM_BUCKET`         | JetStream KV bucket for persisted state               | `price_to_beat`                  |
 | `PRICE_TO_BEAT_RECONCILE_DELAY`          | Delay after market expiry before final external lookup | `2m`                             |
 | `PRICE_TO_BEAT_PUBLISH_THRESHOLD_BPS`    | Min delta to publish revision                          | `1`                              |
+| `PRICE_TO_BEAT_WINDOW`                   | Rolling window used for cross-platform weighted delta  | `10m`                            |
+| `PRICE_TO_BEAT_UPDATE_COOLDOWN`          | Minimum interval between stream-based updates          | `2m`                             |
+| `PRICE_TO_BEAT_POLYMARKET_WEIGHT`        | Weight for Polymarket in weighted spread calculation   | `0.7`                            |
+| `PRICE_TO_BEAT_CRYPTO_STREAM_NAME`       | JetStream stream that stores `crypto.prices.*` events  | `CRYPTO_PRICES`                  |
+| `BINANCE_API_URL`                        | Binance REST API base URL for kline open bootstrap     | `https://api.binance.com`        |
 
 ---
 

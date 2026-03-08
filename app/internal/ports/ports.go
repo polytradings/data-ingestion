@@ -39,6 +39,14 @@ type PriceToBeatExternalProvider interface {
 	LookupReferencePrice(ctx context.Context, marketID string) (price float64, found bool, err error)
 }
 
+type OpenPriceProvider interface {
+	LookupOpenPrice(ctx context.Context, symbol string, slotStart time.Time) (price float64, found bool, err error)
+}
+
+type CryptoPriceHistoryProvider interface {
+	LoadTicks(ctx context.Context, symbol string, start time.Time, end time.Time) ([]*proto.CryptoPriceTick, error)
+}
+
 type PriceToBeatStateStore interface {
 	Load(ctx context.Context, marketID string) (*proto.PriceToBeat, bool, error)
 	Save(ctx context.Context, marketID string, state *proto.PriceToBeat, ttl time.Duration) error
